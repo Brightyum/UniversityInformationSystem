@@ -18,8 +18,14 @@
 *.zip
 *.tar.gz
 *.rar
+<<<<<<< HEAD
 *.target
 target/
+=======
+*.target/
+target/
+/*.target
+>>>>>>> 0cc3303efd46dcb23017cc6758a770287756167e
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*

@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
  *
  * @author user
  */
-public class ClassesUi extends JFrame{
+public class ClassesUi extends JFrame {
     public ClassesUi(){
         setTitle("수업 담당자창");
         setSize(600,550);
@@ -24,11 +24,23 @@ public class ClassesUi extends JFrame{
         detail.insets = new Insets(10,10,10,10);
         
         JButton classSignUp = new JButton("새로운 강좌 등록");
+        classSignUp.addActionListener(new ActionListener() {
+            @Override
+             public void actionPerformed(ActionEvent e) {
+                 new ClassRegister().setVisible(true);
+             }
+        });
         detail.gridx = 0;
         detail.gridy = 0;
         add(classSignUp, detail);
         
         JButton newLecture = new JButton("새로운 강의 개설");
+        newLecture.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ClassLecture().setVisible(true);
+            }
+        });
         detail.gridx = 0;
         detail.gridy = 1;
         add(newLecture, detail);
@@ -48,6 +60,8 @@ public class ClassesUi extends JFrame{
         detail.gridx = 0;
         detail.gridy = 3;
         add(modifyUser, detail);
+        
+        
         
         setVisible(true);
     }

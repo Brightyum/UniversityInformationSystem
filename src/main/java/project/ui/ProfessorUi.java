@@ -17,7 +17,7 @@ public class ProfessorUi extends JFrame{
         setSize(600,550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        
+        //test
         setLayout(new GridBagLayout());
         GridBagConstraints detail = new GridBagConstraints();
         detail.fill = GridBagConstraints.HORIZONTAL;
