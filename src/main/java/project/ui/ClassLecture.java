@@ -19,6 +19,8 @@ import java.util.logging.Logger;
  * @author duatm
  */
 public class ClassLecture extends JFrame {
+    private String classSelect;
+    
     public ClassLecture() {
         try {
             setTitle("수업 담당자창");
@@ -35,6 +37,7 @@ public class ClassLecture extends JFrame {
             detail.gridx = 0;
             detail.gridy = 0;
             add(dataLabel, detail);
+            
             ClassLectureReadData data = new ClassLectureReadData();
             CopyOnWriteArrayList<String> classData = data.readClassData();
             
@@ -48,6 +51,32 @@ public class ClassLecture extends JFrame {
             add(comboBox);
             
             JComboBox<String> professorComboBox = new JComboBox<>();
+            detail.gridx = 0;
+            detail.gridy = 1;
+            add(professorComboBox, detail);
+            
+            
+            JButton classButton = new JButton("확인");
+            detail.gridx = 2;
+            detail.gridy = 0;
+            classButton.addActionListener(new ActionListener() {
+              @Override
+              public void actionPerformed(ActionEvent e) {
+                  classSelect = (String)comboBox.getSelectedItem();
+                  try {
+                       CopyOnWriteArrayList<String> professorName = data.readProfessorData(classSelect);
+                       
+                       for (String i : professorName) {
+                           professorComboBox.addItem(i);
+                       }
+                  } catch (IOException ioException) {
+                       Logger.getLogger(ClassLecture.class.getName()).log(Level.SEVERE, null, ioException);
+                  }
+              }
+            });
+            add(classButton, detail);
+            
+            
             
             JButton makeLecture = new JButton("강의 개설하기");
             detail.gridx = 1;

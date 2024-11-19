@@ -13,9 +13,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ClassLectureReadData {
     private String lectureFilePath;
+    private String professorFilePath;
+    private int rowIndex;
+    private int targetLectureColumnIndex;
+    private int departmentIndex;
+    private int targetProfessorColumnIndex;
+    //private
 
     public ClassLectureReadData() {
         lectureFilePath = "LectureStaff_data.xlsx";
+        professorFilePath = "Professor_data.xlsx";
+        rowIndex = 0;
+        targetLectureColumnIndex = 1;
+        departmentIndex = 2;
+        targetProfessorColumnIndex = 1;
     }
 
     public CopyOnWriteArrayList<String> readClassData() throws IOException {
@@ -24,18 +35,11 @@ public class ClassLectureReadData {
         Workbook workbook = new XSSFWorkbook(file);
 
         // 첫 번째 시트 가져오기
-        Sheet sheet = workbook.getSheetAt(0); // 0번 시트를 선택
+        Sheet sheet = workbook.getSheetAt(rowIndex); // 0번 시트를 선택
 
-        // 출력할 열의 인덱스 설정 (예: 1번째 열 = index 0)
-        int targetColumnIndex = 1;
-        int rowIndex = 0;
         // 모든 행 순회
         for (Row row : sheet) {
-            if (rowIndex == 0) {
-                rowIndex++;
-                continue;
-            }
-            Cell cell = row.getCell(targetColumnIndex);
+            Cell cell = row.getCell(targetLectureColumnIndex);
             if (cell != null) {
                 data.add(cell.toString());
             }
@@ -43,10 +47,48 @@ public class ClassLectureReadData {
 
         return data;
     }
+    //  public CopyOnWriteArrayList<String> readProfessorData(String classSelect) throws IOException{
+    public CopyOnWriteArrayList<String> readProfessorData(String classSelect) throws IOException{
+        String department = null;
+        FileInputStream fileLecture = new FileInputStream(lectureFilePath);
+        Workbook workbookLecture = new XSSFWorkbook(fileLecture);
+        Sheet sheetLecture = workbookLecture.getSheetAt(rowIndex);
+        
+        for (Row row : sheetLecture) {
+            Cell cell = row.getCell(targetLectureColumnIndex);
+            if (cell != null && cell.toString().equals(classSelect)) {
+                Cell dataCell = row.getCell(departmentIndex);
+                if (dataCell != null) {
+                    department = dataCell.toString();
+                    System.out.println(department);
+                    break;
+                }
+            }
+        }
+        CopyOnWriteArrayList<String> professorName = new CopyOnWriteArrayList<>();
+        FileInputStream fileProfessor = new FileInputStream(professorFilePath);
+        Workbook workbookProfessor = new XSSFWorkbook(fileProfessor);
+        Sheet sheetProfessor = workbookProfessor.getSheetAt(rowIndex);
+        
+        for (Row row : sheetProfessor) {
+            Cell cell = row.getCell(departmentIndex);
+            if (cell != null && cell.toString().equals(department)) {
+                Cell dataCell = row.getCell(targetProfessorColumnIndex);
+                if(dataCell != null) {
+                    professorName.add(dataCell.toString());
+                    
+                }
+            }
+        }
+        System.out.println(professorName);
+        return professorName;
+    }
 
     public static void main(String[] args) throws IOException {
         ClassLectureReadData reader = new ClassLectureReadData();
         CopyOnWriteArrayList<String> columnData = reader.readClassData();
         System.out.println(columnData);
+        String test = "남자";
+        reader.readProfessorData(test);
     }
 }
