@@ -8,7 +8,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -64,7 +63,5 @@ public class LectureExcelReadData {
         }
         return column;
     }
-    public static void main(String[] args) {
-        int s =0;
-    }
+    
 }
