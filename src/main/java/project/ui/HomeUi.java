@@ -3,13 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package project.ui;
+
 import javax.swing.*;
 import java.awt.*;
 
-/**
- *
- * @author user
- */
+//로그인 ui
 public class HomeUi extends JFrame{
     public HomeUi() {
         setTitle("로그인");
@@ -58,7 +56,7 @@ public class HomeUi extends JFrame{
         detail.weightx = 0.5;
         detail.weighty = 1.0;
         add(figureId, detail);
-       
+        
         setVisible(true);
         
     }
