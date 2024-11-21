@@ -5,8 +5,6 @@ import project.student.StudentUi;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class AcademicUi extends JFrame {
     public AcademicUi() {
