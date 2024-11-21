@@ -17,7 +17,7 @@ public class StudentExcelHandler {
 
     public boolean updateStudent(String studentNumber, String studentName, String department, String ssn) {
         return modifySheet(sheet -> {
-            Row row = findRowByValue(sheet, 0, studentNumber);
+            Row row = findRowByValue(sheet, studentNumber);
             if (row != null) {
                 setCellValues(row, studentNumber, studentName, department, ssn);
             } else {
@@ -28,7 +28,7 @@ public class StudentExcelHandler {
 
     public boolean deleteStudent(String studentNumber) {
         return modifySheet(sheet -> {
-            Row row = findRowByValue(sheet, 0, studentNumber);
+            Row row = findRowByValue(sheet, studentNumber);
             if (row != null) {
                 removeRow(sheet, row);
             } else {
@@ -60,7 +60,7 @@ public class StudentExcelHandler {
     }
 
     private <T> T executeWorkbookOperation(WorkbookOperation<T> operation) {
-        try (FileInputStream fileIn = new FileInputStream(new File(FILE_PATH));
+        try (FileInputStream fileIn = new FileInputStream(FILE_PATH);
              Workbook workbook = new XSSFWorkbook(fileIn)) {
 
             return operation.execute(workbook);
@@ -81,9 +81,9 @@ public class StudentExcelHandler {
         }
     }
 
-    private Row findRowByValue(Sheet sheet, int cellIndex, String value) {
+    private Row findRowByValue(Sheet sheet, String value) {
         for (Row row : sheet) {
-            if (getCellValue(row, cellIndex).equals(value)) {
+            if (getCellValue(row, 0).equals(value)) {
                 return row;
             }
         }
@@ -114,7 +114,7 @@ public class StudentExcelHandler {
     }
 
     private void saveWorkbook(Workbook workbook) throws IOException {
-        try (FileOutputStream fileOut = new FileOutputStream(new File(FILE_PATH))) {
+        try (FileOutputStream fileOut = new FileOutputStream(FILE_PATH)) {
             workbook.write(fileOut);
         }
     }
