@@ -4,14 +4,18 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ProfessorExcelHandler {
     private static final String FILE_PATH = "Professor_data.xlsx";
+    private static final Logger logger = Logger.getLogger(ProfessorExcelHandler.class.getName());
 
     public boolean registerProfessor(String professorNumber, String professorName, String department, String ssn) {
         return modifySheet(sheet -> {
             Row row = createNewRow(sheet);
             setCellValues(row, professorNumber, professorName, department, ssn);
+            logger.info("교수 등록 완료: " + professorNumber + ", " + professorName);
         });
     }
 
@@ -20,8 +24,10 @@ public class ProfessorExcelHandler {
             Row row = findRowByValue(sheet, professorNumber);
             if (row != null) {
                 setCellValues(row, professorNumber, professorName, department, ssn);
+                logger.info("교수 정보 업데이트 완료: " + professorNumber + ", " + professorName);
             } else {
-                throw new IllegalStateException("교수 정보를 찾을 수 없습니다.");
+                logger.warning("업데이트 대상 교수를 찾을 수 없음: " + professorNumber);
+                throw new IllegalStateException("교수를 찾을 수 없습니다.");
             }
         });
     }
@@ -31,8 +37,10 @@ public class ProfessorExcelHandler {
             Row row = findRowByValue(sheet, professorNumber);
             if (row != null) {
                 removeRow(sheet, row);
+                logger.info("교수 삭제 완료: " + professorNumber);
             } else {
-                throw new IllegalStateException("교수 정보를 찾을 수 없습니다.");
+                logger.warning("삭제 대상 교수를 찾을 수 없음: " + professorNumber);
+                throw new IllegalStateException("교수를 찾을 수 없습니다.");
             }
         });
     }
@@ -43,9 +51,12 @@ public class ProfessorExcelHandler {
             for (Row row : sheet) {
                 if ((professorNumber.isEmpty() || getCellValue(row, 0).equals(professorNumber)) &&
                         (professorName.isEmpty() || getCellValue(row, 1).equals(professorName))) {
-                    return rowToString(row);
+                    String result = rowToString(row);
+                    logger.info("교수 검색 성공: " + result);
+                    return result;
                 }
             }
+            logger.info("교수를 찾을 수 없음: " + professorNumber + ", " + professorName);
             return null;
         });
     }
@@ -62,13 +73,13 @@ public class ProfessorExcelHandler {
     private <T> T executeWorkbookOperation(WorkbookOperation<T> operation) {
         try (FileInputStream fileIn = new FileInputStream(FILE_PATH);
              Workbook workbook = new XSSFWorkbook(fileIn)) {
-
             return operation.execute(workbook);
-
+        } catch (FileNotFoundException e) {
+            logger.log(Level.SEVERE, "파일을 찾을 수 없습니다: " + FILE_PATH, e);
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            logger.log(Level.SEVERE, "파일 접근 중 I/O 오류 발생: " + FILE_PATH, e);
         }
+        return null;
     }
 
     private Row createNewRow(Sheet sheet) {
@@ -77,7 +88,8 @@ public class ProfessorExcelHandler {
 
     private void setCellValues(Row row, String... values) {
         for (int i = 0; i < values.length; i++) {
-            row.createCell(i).setCellValue(values[i]);
+            Cell cell = row.createCell(i, CellType.STRING);
+            cell.setCellValue(values[i]);
         }
     }
 
@@ -95,8 +107,10 @@ public class ProfessorExcelHandler {
         int lastRowNum = sheet.getLastRowNum();
         if (rowIndex >= 0 && rowIndex < lastRowNum) {
             sheet.shiftRows(rowIndex + 1, lastRowNum, -1);
+            logger.info("행 삭제 완료. 삭제된 행 인덱스: " + rowIndex);
         } else if (rowIndex == lastRowNum) {
             sheet.removeRow(rowToRemove);
+            logger.info("마지막 행 삭제 완료. 삭제된 행 인덱스: " + rowIndex);
         }
     }
 
@@ -113,9 +127,12 @@ public class ProfessorExcelHandler {
         return sb.toString().trim();
     }
 
-    private void saveWorkbook(Workbook workbook) throws IOException {
+    private void saveWorkbook(Workbook workbook) {
         try (FileOutputStream fileOut = new FileOutputStream(FILE_PATH)) {
             workbook.write(fileOut);
+            logger.info("엑셀 파일 저장 완료.");
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "엑셀 파일 저장 실패: " + FILE_PATH, e);
         }
     }
 

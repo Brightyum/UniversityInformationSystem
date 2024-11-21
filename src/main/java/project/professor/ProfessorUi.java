@@ -55,7 +55,7 @@ public class ProfessorUi extends JFrame {
         detail.gridx = 1;
         detail.gridy = row;
         JButton button = new JButton(text);
-        button.addActionListener(action); // ActionListener로 변경
+        button.addActionListener(action); // Action Listener로 변경
         add(button, detail);
     }
 
