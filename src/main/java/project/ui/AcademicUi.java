@@ -22,11 +22,8 @@ public class AcademicUi extends JFrame {
 
         // 학생 관리 버튼
         JButton manageStudentButton = new JButton("학생 관리");
-        manageStudentButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new StudentUi().setVisible(true); // Student 관리 UI 열기
-            }
+        manageStudentButton.addActionListener(e -> {
+            new StudentUi().setVisible(true); // Student 관리 UI 열기
         });
         detail.gridx = 0;
         detail.gridy = 0;
@@ -34,11 +31,8 @@ public class AcademicUi extends JFrame {
 
         // 교수 관리 버튼
         JButton manageProfessorButton = new JButton("교수 관리");
-        manageProfessorButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ProfessorUi().setVisible(true); // Professor 관리 UI 열기
-            }
+        manageProfessorButton.addActionListener(e -> {
+            new ProfessorUi().setVisible(true); // Professor 관리 UI 열기
         });
         detail.gridx = 0;
         detail.gridy = 1;

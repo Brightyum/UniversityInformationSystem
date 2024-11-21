@@ -60,7 +60,7 @@ public class ProfessorExcelHandler {
     }
 
     private <T> T executeWorkbookOperation(WorkbookOperation<T> operation) {
-        try (FileInputStream fileIn = new FileInputStream(new File(FILE_PATH));
+        try (FileInputStream fileIn = new FileInputStream(FILE_PATH);
              Workbook workbook = new XSSFWorkbook(fileIn)) {
 
             return operation.execute(workbook);
@@ -114,7 +114,7 @@ public class ProfessorExcelHandler {
     }
 
     private void saveWorkbook(Workbook workbook) throws IOException {
-        try (FileOutputStream fileOut = new FileOutputStream(new File(FILE_PATH))) {
+        try (FileOutputStream fileOut = new FileOutputStream(FILE_PATH)) {
             workbook.write(fileOut);
         }
     }

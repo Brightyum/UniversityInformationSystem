@@ -1,6 +1,5 @@
 package project.student;
 
-import project.student.StudentExcelHandler;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -73,12 +72,12 @@ public class StudentUi extends JFrame {
                 departmentField.getText(),
                 ssnField.getText()
         );
-        showMessage(success, "학생 정보가 수정되었습니다.", "해당 학생 정보를 찾을 수 없습니다.");
+        showMessage(success, "학생 정보가 수정되었습니다.");
     }
 
     private void deleteStudent() {
         boolean success = studentExcelHandler.deleteStudent(studentNumberField.getText());
-        showMessage(success, "학생 정보가 삭제되었습니다.", "해당 학생 정보를 찾을 수 없습니다.");
+        showMessage(success, "학생 정보가 삭제되었습니다.");
     }
 
     private void searchStudent() {
@@ -89,8 +88,8 @@ public class StudentUi extends JFrame {
         JOptionPane.showMessageDialog(this, result != null ? "학생 정보: " + result : "해당 학생 정보를 찾을 수 없습니다.");
     }
 
-    private void showMessage(boolean success, String successMsg, String failureMsg) {
-        JOptionPane.showMessageDialog(this, success ? successMsg : failureMsg);
+    private void showMessage(boolean success, String successMsg) {
+        JOptionPane.showMessageDialog(this, success ? successMsg : "해당 학생 정보를 찾을 수 없습니다.");
     }
 
     public static void main(String[] args) {
