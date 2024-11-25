@@ -119,22 +119,10 @@ public class ClassLecture extends JFrame {
                     }  
                 }
             });
-            
             detail.gridx = 2;
             detail.gridy = 3;
             add(minMaxConfirm, detail);
             
-            JButton makeLecture = new JButton("강의 개설하기");
-            detail.gridx = 1;
-            detail.gridy = 1;
-            
-            makeLecture.addActionListener(new ActionListener(){
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    
-                    
-                }
-            });
             
             setVisible(true);
         } catch (IOException ex) {
