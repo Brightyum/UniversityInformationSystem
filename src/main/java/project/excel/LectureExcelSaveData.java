@@ -17,18 +17,25 @@ import java.util.ArrayList;
  */
 public class LectureExcelSaveData {
     private String lectureFilePath;
+    private int rowIndex;
+    private int newRow;
+    private int startDataIndex;
+    private int departmentIndex;
     
    public LectureExcelSaveData() {
-    lectureFilePath = "LectureStaff_data.xlsx";
+       lectureFilePath = "LectureStaff_data.xlsx";
+       rowIndex = 0;
+       startDataIndex = 6;
+       departmentIndex = 1;
     }
    
    public void saveData(ArrayList<String> lectureStaffData) {
        try {
            FileInputStream fileIn = new FileInputStream(new File(lectureFilePath));
            Workbook workbook = new XSSFWorkbook(fileIn);
-           Sheet sheet = workbook.getSheetAt(0);
+           Sheet sheet = workbook.getSheetAt(rowIndex);
            
-           int newRow = sheet.getLastRowNum() + 1;
+           newRow = sheet.getLastRowNum() + 1;
            
            Row row = sheet.createRow(newRow);
            int newCell = 0;
@@ -46,33 +53,33 @@ public class LectureExcelSaveData {
            System.err.println("엑셀파일 저장에 실패했습니다." + e.getMessage());
        }
    }
-    
-    
-    
-    
-    /*
-      public static void main(String[] args) throws IOException {
-        FileInputStream file = new FileInputStream(new File("Student_data.xlsx"));
-        Workbook workbook = new XSSFWorkbook(file);
-        Sheet sheet = workbook.getSheetAt(0);
-
-        for (Row row : sheet) {
-            for (Cell cell : row) {
-                switch (cell.getCellType()) {
-                    case STRING:
-                        System.out.print(cell.getStringCellValue() + "\t");
-                        break;
-                    case NUMERIC:
-                        System.out.print(cell.getNumericCellValue() + "\t");
-                        break;
-                    default:
-                        break;
+   
+   public boolean finalConfirm(String minInput, String maxInput, String profeesorSelect, String classSelect) throws IOException {
+        FileInputStream fileLecture = new FileInputStream(lectureFilePath);
+        Workbook workbookLecture = new XSSFWorkbook(fileLecture);
+        Sheet sheetLecture = workbookLecture.getSheetAt(rowIndex);
+        boolean check = false;
+        
+        String[] inputData = { profeesorSelect, minInput, maxInput};
+        
+        for (Row row : sheetLecture) {
+            Cell cell = row.getCell(departmentIndex);
+            if (cell != null && cell.toString().trim().equals(classSelect)) {
+                for (int i = rowIndex; i < inputData.length; i++) {
+                    Cell saveCell = row.createCell(startDataIndex + i);
+                    saveCell.setCellValue(inputData[i]);
+                    
                 }
+                check = true;
+                break;
             }
-            System.out.println();
         }
-        workbook.close();
-        file.close();
+       
+        fileLecture.close(); 
+        FileOutputStream outputStream = new FileOutputStream(lectureFilePath);
+        workbookLecture.write(outputStream);
+        outputStream.close();
+        workbookLecture.close();
+        return check;
     }
-*/
 }

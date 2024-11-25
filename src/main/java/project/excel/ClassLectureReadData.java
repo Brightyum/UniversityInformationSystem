@@ -83,7 +83,17 @@ public class ClassLectureReadData {
         System.out.println(professorName);
         return professorName;
     }
-
+    /*
+    public boolean finalConfirm(String minInput, String maxInput, String profeesorSelect) throws IOException {
+        FileInputStream fileLecture = new FileInputStream(lectureFilePath);
+        Workbook workbookLecture = new XSSFWorkbook(fileLecture);
+        Sheet sheetLecture = workbookLecture.getSheetAt(rowIndex);
+        
+        for (Row row : sheetLecture) {
+            Cell cell = row.
+        }
+    }
+*/
     public static void main(String[] args) throws IOException {
         ClassLectureReadData reader = new ClassLectureReadData();
         CopyOnWriteArrayList<String> columnData = reader.readClassData();
