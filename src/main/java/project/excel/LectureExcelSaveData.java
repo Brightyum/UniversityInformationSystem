@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package project.excel;
+
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -11,22 +12,29 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+
 /**
  *
  * @author user
  */
 public class LectureExcelSaveData {
     private String lectureFilePath;
+    private int rowIndex;
+    private int startDataIndex;
+    private int departmentIndex;
 
     public LectureExcelSaveData() {
         lectureFilePath = "LectureStaff_data.xlsx";
+        rowIndex = 0; // Sheet index
+        startDataIndex = 6; // Data column start index
+        departmentIndex = 1; // Department column index
     }
 
     public void saveData(ArrayList<String> lectureStaffData) {
         try {
             FileInputStream fileIn = new FileInputStream(new File(lectureFilePath));
             Workbook workbook = new XSSFWorkbook(fileIn);
-            Sheet sheet = workbook.getSheetAt(0);
+            Sheet sheet = workbook.getSheetAt(rowIndex);
 
             int newRow = sheet.getLastRowNum() + 1;
 
@@ -37,42 +45,43 @@ public class LectureExcelSaveData {
                 cell.setCellValue(cellData);
             }
             fileIn.close();
+
             FileOutputStream fileOut = new FileOutputStream(new File(lectureFilePath));
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
             System.out.println("엑셀파일 저장 완료");
         } catch (IOException e) {
-            System.err.println("엑셀파일 저장에 실패했습니다." + e.getMessage());
+            System.err.println("엑셀파일 저장에 실패했습니다: " + e.getMessage());
         }
     }
 
+    public boolean finalConfirm(String minInput, String maxInput, String professorSelect, String classSelect) throws IOException {
+        FileInputStream fileLecture = new FileInputStream(lectureFilePath);
+        Workbook workbookLecture = new XSSFWorkbook(fileLecture);
+        Sheet sheetLecture = workbookLecture.getSheetAt(rowIndex);
+        boolean check = false;
 
+        String[] inputData = {professorSelect, minInput, maxInput};
 
-
-    /*
-      public static void main(String[] args) throws IOException {
-        FileInputStream file = new FileInputStream(new File("Student_data.xlsx"));
-        Workbook workbook = new XSSFWorkbook(file);
-        Sheet sheet = workbook.getSheetAt(0);
-
-        for (Row row : sheet) {
-            for (Cell cell : row) {
-                switch (cell.getCellType()) {
-                    case STRING:
-                        System.out.print(cell.getStringCellValue() + "\t");
-                        break;
-                    case NUMERIC:
-                        System.out.print(cell.getNumericCellValue() + "\t");
-                        break;
-                    default:
-                        break;
+        for (Row row : sheetLecture) {
+            Cell cell = row.getCell(departmentIndex);
+            if (cell != null && cell.toString().trim().equals(classSelect)) {
+                for (int i = 0; i < inputData.length; i++) {
+                    Cell saveCell = row.createCell(startDataIndex + i);
+                    saveCell.setCellValue(inputData[i]);
                 }
+                check = true;
+                break;
             }
-            System.out.println();
         }
-        workbook.close();
-        file.close();
+
+        fileLecture.close();
+
+        FileOutputStream outputStream = new FileOutputStream(lectureFilePath);
+        workbookLecture.write(outputStream);
+        outputStream.close();
+        workbookLecture.close();
+        return check;
     }
-*/
 }
