@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package project.ui;
+package project.classer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -89,7 +89,10 @@ public class ClassRegister extends JFrame {
                     LectureExcelReadData excelReader = new LectureExcelReadData();
                     CopyOnWriteArrayList<CopyOnWriteArrayList<Object>> data = excelReader.readLectureStaffExcel();
                     CopyOnWriteArrayList<String> columns = excelReader.getColumn(data);
-
+                    
+                    if (!data.isEmpty()) {
+                        data.remove(0);
+                    }
                     DefaultTableModel defaultTable = new DefaultTableModel();
                     defaultTable.setColumnIdentifiers(columns.toArray());
 

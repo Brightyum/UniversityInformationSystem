@@ -2,11 +2,15 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package project.ui;
+package project.classer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import project.ui.ModifyUser;
 /**
  *
  * @author user
@@ -15,7 +19,7 @@ public class ClassesUi extends JFrame {
     public ClassesUi(){
         setTitle("수업 담당자창");
         setSize(600,550);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         
         setLayout(new GridBagLayout());
@@ -45,9 +49,34 @@ public class ClassesUi extends JFrame {
         detail.gridy = 1;
         add(newLecture, detail);
         
+        JButton modifyClass = new JButton("강좌 수정하기");
+        detail.gridx = 1;
+        detail.gridy = 0;
+        modifyClass.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    new ClassModify().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(ClassesUi.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        add(modifyClass, detail);
+        
         JButton chargeCourse = new JButton("수강료 청구");
         detail.gridx = 0;
         detail.gridy = 2;
+        chargeCourse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    new ClassBilling().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(ClassesUi.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         add(chargeCourse, detail);
         
         JButton modifyUser = new JButton("회원 정보 변경");
