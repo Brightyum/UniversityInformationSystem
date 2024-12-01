@@ -1,20 +1,22 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package CourseManagement;
 
-/**
- *
- * @author 소언
- */
-public class GradesUi {
+import javax.swing.*;
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
+public class GradesUi extends JFrame {
+    public GradesUi() {
+        setTitle("성적 확인");
+        setSize(600, 550);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
+        setLocationRelativeTo(null);
+        
+        JLabel label = new JLabel("성적 확인 화면 어케 구상했는지 모름");
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        add(label);
+        
+        setVisible(true);
     }
     
+    public static void main(String[] args) {
+        new GradesUi(); 
+    }
 }
