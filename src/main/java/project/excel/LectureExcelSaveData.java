@@ -19,15 +19,14 @@ import java.util.ArrayList;
  */
 public class LectureExcelSaveData {
     private String lectureFilePath;
-    private int rowIndex;
-    private int startDataIndex;
-    private int departmentIndex;
+    private int rowIndex, departmentIndex, startDataIndex, modifyClassIndex;
 
     public LectureExcelSaveData() {
         lectureFilePath = "LectureStaff_data.xlsx";
         rowIndex = 0; // Sheet index
-        startDataIndex = 6; // Data column start index
+        startDataIndex = 5; // Data column start index
         departmentIndex = 1; // Department column index
+        modifyClassIndex = 1;
     }
 
     public void saveData(ArrayList<String> lectureStaffData) {
@@ -62,7 +61,7 @@ public class LectureExcelSaveData {
         Sheet sheetLecture = workbookLecture.getSheetAt(rowIndex);
         boolean check = false;
 
-        String[] inputData = {professorSelect, minInput, maxInput};
+        String[] inputData = {"0", professorSelect, minInput, maxInput};
 
         for (Row row : sheetLecture) {
             Cell cell = row.getCell(departmentIndex);
@@ -82,6 +81,59 @@ public class LectureExcelSaveData {
         workbookLecture.write(outputStream);
         outputStream.close();
         workbookLecture.close();
+        return check;
+    }
+    public boolean modifyClass(String className, String modifyData) throws IOException {
+        boolean check = false;
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(rowIndex);
+        int count = 0;
+        
+        for (Row row : sheet) {
+            Cell modifyCell = row.getCell(modifyClassIndex);
+            if (modifyCell != null && modifyCell.toString().equals(className)) {
+                String[] data = modifyData.trim().replaceAll("\\s+", "").split(",");
+                
+                for (int i = modifyClassIndex; i <= data.length; i++) {
+                    Cell cell = row.createCell(i);
+                    cell.setCellValue(data[count]);
+                    count++;
+                }
+                check = true;
+                break;
+            }
+        }
+        
+        file.close();
+        FileOutputStream outputStream = new FileOutputStream(lectureFilePath);
+        workbook.write(outputStream);
+        outputStream.close();
+        workbook.close();
+        
+        return check;
+    }
+    
+    public boolean deleteClass(String className) throws IOException {
+        boolean check = false;
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(rowIndex);
+        
+        for (Row row : sheet) {
+            Cell deleteCell = row.getCell(modifyClassIndex);
+            if (deleteCell != null && deleteCell.toString().equals(className)) {
+                sheet.removeRow(row);
+                check = true;
+                break;
+            }
+        }
+        file.close();
+        FileOutputStream outputStream = new FileOutputStream(lectureFilePath);
+        workbook.write(outputStream);
+        outputStream.close();
+        workbook.close();
+        
         return check;
     }
 }
