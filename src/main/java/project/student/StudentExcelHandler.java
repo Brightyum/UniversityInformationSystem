@@ -61,6 +61,36 @@ public class StudentExcelHandler {
         });
     }
 
+    public boolean addOrUpdateScore(String studentNumber, String courseName, int score) {
+        return modifySheet(sheet -> {
+            Row row = findRowByValue(sheet, studentNumber);
+            if (row == null) {
+                logger.warning("점수를 추가/수정하려는 학생을 찾을 수 없음: " + studentNumber);
+                throw new IllegalStateException("학생을 찾을 수 없습니다.");
+            }
+
+            // 강좌/점수 추가 또는 업데이트
+            boolean courseUpdated = false;
+            for (int i = 4; i < row.getLastCellNum(); i++) {
+                Cell cell = row.getCell(i);
+                if (cell != null && cell.getStringCellValue().startsWith(courseName + "/")) {
+                    cell.setCellValue(courseName + "/" + score); // 점수 업데이트
+                    courseUpdated = true;
+                    logger.info("강좌 점수 업데이트: " + courseName + " = " + score);
+                    break;
+                }
+            }
+
+            // 새로운 강좌/점수 추가
+            if (!courseUpdated) {
+                int newCellIndex = row.getLastCellNum();
+                Cell newCell = row.createCell(newCellIndex, CellType.STRING);
+                newCell.setCellValue(courseName + "/" + score);
+                logger.info("새 강좌 추가: " + courseName + " = " + score);
+            }
+        });
+    }
+
     private boolean modifySheet(SheetOperation operation) {
         return Boolean.TRUE.equals(executeWorkbookOperation(workbook -> {
             Sheet sheet = workbook.getSheetAt(0);
@@ -73,16 +103,13 @@ public class StudentExcelHandler {
     private <T> T executeWorkbookOperation(WorkbookOperation<T> operation) {
         try (FileInputStream fileIn = new FileInputStream(FILE_PATH);
              Workbook workbook = new XSSFWorkbook(fileIn)) {
-
             return operation.execute(workbook);
-
         } catch (FileNotFoundException e) {
             logger.log(Level.SEVERE, "파일을 찾을 수 없습니다: " + FILE_PATH, e);
-            return null;
         } catch (IOException e) {
             logger.log(Level.SEVERE, "파일 접근 중 I/O 오류 발생: " + FILE_PATH, e);
-            return null;
         }
+        return null;
     }
 
     private Row createNewRow(Sheet sheet) {
@@ -123,30 +150,7 @@ public class StudentExcelHandler {
 
     private String getCellValue(Row row, int cellIndex) {
         Cell cell = row.getCell(cellIndex);
-        if (cell == null) {
-            return "";
-        }
-
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getLocalDateTimeCellValue().toString();
-                } else {
-                    return String.valueOf(cell.getNumericCellValue());
-                }
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                try {
-                    return cell.getStringCellValue();
-                } catch (IllegalStateException e) {
-                    return String.valueOf(cell.getNumericCellValue());
-                }
-            default:
-                return "";
-        }
+        return cell != null ? cell.getStringCellValue() : "";
     }
 
     private String rowToString(Row row) {
