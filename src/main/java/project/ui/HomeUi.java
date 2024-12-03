@@ -6,6 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HomeUi extends JFrame {
     public HomeUi() {
@@ -69,7 +72,11 @@ public class HomeUi extends JFrame {
                 String role = LoginHandler.checkLogin(enteredId, enteredPwd);
                 if (role != null) {
                     dispose(); // 현재 창 닫기
-                    NavigationManager.navigate(role); // 역할에 따라 새 창 열기
+                    try {
+                        NavigationManager.navigate(role); // 역할에 따라 새 창 열기
+                    } catch (IOException ex) {
+                        Logger.getLogger(HomeUi.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         });

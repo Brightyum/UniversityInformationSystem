@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 public class ClassBilling extends JFrame {
     private String classSelect;
     private CopyOnWriteArrayList<String> currentStudentList;
+    private boolean check;
     
     public ClassBilling() throws IOException {
         setTitle("수업 담당자창");
@@ -33,7 +34,8 @@ public class ClassBilling extends JFrame {
         
         currentStudentList = new CopyOnWriteArrayList<>();
         LectureExcelReadData readObject = new LectureExcelReadData();
-
+        LectureExcelSaveData saveObject = new LectureExcelSaveData();
+        
         // 강의 선택 라벨과 콤보박스
         JLabel lectureLabel = new JLabel("청구하실 강의를 선택하세요");
         detail.gridx = 0;
@@ -104,7 +106,14 @@ public class ClassBilling extends JFrame {
         billingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(currentStudentList);
+                try {
+                    classSelect = (String) lectureComboBox.getSelectedItem();
+                    check = saveObject.billingLecture(classSelect);
+                    System.out.println(check);
+                } catch (IOException ex) {
+                    Logger.getLogger(ClassBilling.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
             }
         });
         add(billingButton, detail);
