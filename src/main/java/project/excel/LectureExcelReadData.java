@@ -19,17 +19,24 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class LectureExcelReadData {
     private int count, startIndex, targetIndex,
-            classIndex, studentIndex, minStudentIndex,studentNameIndex;
-    private String lectureFilePath;
+            classIndex, studentIndex, minStudentIndex,studentNameIndex,
+            nextRow, maxStudentIndex, professorName, studentLectureIndex, 
+            maxCredit, creditIndex, classNumIndex, confirmLectureIndex, nameIndex;
+    private String lectureFilePath, studentFilePath;
     
     public LectureExcelReadData(){
         lectureFilePath = "LectureStaff_data.xlsx";
+        studentFilePath = "Student_data.xlsx";
         count = startIndex = 0;
-        targetIndex = 5;
-        classIndex = 1;
+        targetIndex = studentLectureIndex = classNumIndex = 5;
+        classIndex = nextRow = nameIndex = 1;
         studentIndex = 9;
         minStudentIndex = 7;
         studentNameIndex = 10;
+        maxStudentIndex = 8;
+        professorName = confirmLectureIndex = 6;
+        maxCredit = 18;
+        creditIndex = 4;
     }
     
     public CopyOnWriteArrayList<CopyOnWriteArrayList<Object>> readLectureStaffExcel() throws IOException {
@@ -72,11 +79,7 @@ public class LectureExcelReadData {
                     for (Object cell : firstRow) {
                         column.add(cell.toString());
                     }
-                    /*
-                    for(int i = 0; i < firstRow.size(); i++) {
-                        column.add("" + (i + 1));
-                    }
-                    */
+                    
                 }
                 return column;
     }
@@ -104,13 +107,13 @@ public class LectureExcelReadData {
         Sheet sheet = workbook.getSheetAt(startIndex);
 
         // 첫 번째 행을 건너뛰고 나머지 데이터 처리
-        for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) { // rowIndex = 1부터 시작
+        for (int rowIndex = nextRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) { // rowIndex = 1부터 시작
             Row row = sheet.getRow(rowIndex);
             if (row != null) {
                 Cell studentCell = row.getCell(studentIndex);
                 Cell minStudentCell = row.getCell(minStudentIndex);
-
-                if (studentCell != null && minStudentCell != null) {
+                Cell classNumCell = row.getCell(classNumIndex);
+                if (studentCell != null && minStudentCell != null && classNumCell.toString().equals("0")) {
                     double studentValue = parseCellValue(studentCell);
                     double minStudentValue = parseCellValue(minStudentCell);
 
@@ -154,6 +157,103 @@ public class LectureExcelReadData {
         file.close();
         return data;
     }
+    public CopyOnWriteArrayList<String> getPossibleLecture() throws IOException {
+        CopyOnWriteArrayList<String> data = new CopyOnWriteArrayList<>();
+
+        // 첫 번째 엑셀 파일 읽기
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+
+        // 두 번째 엑셀 파일 읽기 (중복 체크용)
+        FileInputStream studentFile = new FileInputStream(studentFilePath);
+        Workbook studentWorkbook = new XSSFWorkbook(studentFile);
+        Sheet studentSheet = studentWorkbook.getSheetAt(startIndex);
+
+        // 중복 강의 목록 추출
+        CopyOnWriteArrayList<String> existingLectures = new CopyOnWriteArrayList<>();
+        for (int rowIndex = 1; rowIndex <= studentSheet.getLastRowNum(); rowIndex++) { // 첫 번째 행 건너뜀
+            Row row = studentSheet.getRow(rowIndex);
+            if (row != null) {
+                Cell lectureCell = row.getCell(studentLectureIndex);
+                Cell creditCell = row.getCell(creditIndex);
+                int currentCredit = 0;
+                
+                if (creditCell != null && creditCell.getNumericCellValue() >= maxCredit) {
+                    data = null;
+                    return data;
+                }
+                
+                if (lectureCell != null) {
+                    String currentLecture = lectureCell.toString();
+                    String[] checkLecture = currentLecture.split(",");
+                    existingLectures.addAll(Arrays.asList(checkLecture));
+                }
+            }
+        }
+
+        // 기존 엑셀 파일 처리
+        for (int rowIndex = nextRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            if (row != null) {
+                Cell studentCell = row.getCell(studentIndex);
+                Cell maxStudentCell = row.getCell(maxStudentIndex);
+
+                if (studentCell != null && maxStudentCell != null) {
+                    double studentValue = parseCellValue(studentCell);
+                    double maxStudentValue = parseCellValue(maxStudentCell);
+
+                    // 비교 조건
+                    if (studentValue < maxStudentValue) {
+                        Cell classCell = row.getCell(classIndex);
+                        Cell professorNameCell = row.getCell(professorName);
+
+                        if (classCell != null && professorNameCell != null) {
+                            String className = classCell.toString();
+
+                            // 중복 체크
+                            if (!existingLectures.contains(className)) {
+                                data.add(className + "/" + professorNameCell.toString());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 리소스 정리
+        studentFile.close();
+        studentWorkbook.close();
+        file.close();
+        workbook.close();
+
+        return data;
+    }
+    
+    public CopyOnWriteArrayList<String> getConfirmLecture(String name) throws IOException {
+        CopyOnWriteArrayList<String> data = new CopyOnWriteArrayList<>();
+        
+        FileInputStream file = new FileInputStream(studentFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (int rowIndex = nextRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            if (row != null) {
+                Cell nameCell = row.getCell(nameIndex);
+                if (nameCell != null && nameCell.toString().equals(name)) {
+                    Cell confirmLectureCell = row.getCell(confirmLectureIndex);
+                    String[] currentValue = confirmLectureCell.toString().split(",");
+                    for (String i : currentValue) {
+                        data.add(i);
+                    }
+                }
+            }
+        }
+        return data;
+    }
+
+    
         // 셀 값을 파싱하여 double로 반환하는 메서드
     private double parseCellValue(Cell cell) {
         String cellValue = cell.toString().trim();

@@ -1,4 +1,4 @@
-package project.CourseManagement;
+package CourseManagement;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -6,7 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.awt.Insets;
-import project.Login.ModifyUserUi;
+import Login.ModifyUserUi;
 
 public class ProfessorServicesUi extends JFrame {
     public ProfessorServicesUi() {

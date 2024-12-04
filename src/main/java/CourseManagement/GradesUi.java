@@ -1,4 +1,4 @@
-package project.CourseManagement;
+package CourseManagement;
 
 import javax.swing.*;
 

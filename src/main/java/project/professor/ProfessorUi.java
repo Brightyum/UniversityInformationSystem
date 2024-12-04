@@ -1,5 +1,7 @@
 package project.professor;
 
+import project.student.StudentExcelHandler;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -9,13 +11,20 @@ public class ProfessorUi extends JFrame {
     private final JTextField professorNameField;
     private final JTextField departmentField;
     private final JTextField ssnField;
+
+    private final JTextField courseNameField; // 강좌명 입력 필드
+    private final JTextField studentNumberField; // 학생 번호 입력 필드
+    private final JTextField scoreField; // 점수 입력 필드
+
     private final ProfessorExcelHandler professorExcelHandler;
+    private final StudentExcelHandler studentExcelHandler;
 
     public ProfessorUi() {
         super("교수 정보 관리 창");
         professorExcelHandler = new ProfessorExcelHandler();
+        studentExcelHandler = new StudentExcelHandler();
 
-        setSize(600, 600);
+        setSize(600, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
@@ -36,6 +45,14 @@ public class ProfessorUi extends JFrame {
         addButton("교수 정보 조회", 6, detail, e -> searchProfessor());
         addButton("교수 정보 삭제", 7, detail, e -> deleteProfessor());
 
+        // 점수 입력 기능 관련 필드
+        studentNumberField = addLabelAndField("학생 번호:", 8, detail);
+        courseNameField = addLabelAndField("강좌명:", 9, detail);
+        scoreField = addLabelAndField("점수:", 10, detail);
+
+        // 점수 입력 버튼
+        addButton("점수 입력/수정", 11, detail, e -> addOrUpdateScore());
+
         setVisible(true);
     }
 
@@ -55,7 +72,7 @@ public class ProfessorUi extends JFrame {
         detail.gridx = 1;
         detail.gridy = row;
         JButton button = new JButton(text);
-        button.addActionListener(action); // Action Listener로 변경
+        button.addActionListener(action);
         add(button, detail);
     }
 
@@ -90,6 +107,27 @@ public class ProfessorUi extends JFrame {
                 professorNameField.getText()
         );
         JOptionPane.showMessageDialog(this, result != null ? "교수 정보: " + result : "해당 교수 정보를 찾을 수 없습니다.");
+    }
+
+    private void addOrUpdateScore() {
+        String studentNumber = studentNumberField.getText();
+        String courseName = courseNameField.getText();
+        String scoreText = scoreField.getText();
+
+        if (studentNumber.isEmpty() || courseName.isEmpty() || scoreText.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "학생 번호, 강좌명, 점수를 모두 입력해주세요.");
+            return;
+        }
+
+        try {
+            int score = Integer.parseInt(scoreText);
+            boolean success = studentExcelHandler.addOrUpdateScore(studentNumber, courseName, score);
+            JOptionPane.showMessageDialog(this, success ? "점수 입력/수정 완료." : "학생 정보를 찾을 수 없습니다.");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "점수는 숫자로 입력해주세요.");
+        } catch (IllegalStateException e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }
 
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package project.Login;
+package Login;
 
 import java.util.HashMap;
 import java.util.Map;

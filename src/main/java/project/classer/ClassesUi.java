@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import project.Login.ModifyUserUi;
+import Login.ModifyUserUi;
 /**
  *
  * @author user

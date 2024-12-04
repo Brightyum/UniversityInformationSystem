@@ -59,21 +59,24 @@ public class ClassLecture extends JFrame {
             JButton classButton = new JButton("확인");
             detail.gridx = 2;
             detail.gridy = 0;
-            classButton.addActionListener(new ActionListener() {
-              @Override
-              public void actionPerformed(ActionEvent e) {
-                  classSelect = (String)comboBox.getSelectedItem();
-                  System.out.println(classSelect);
-                  try {
-                       CopyOnWriteArrayList<String> professorName = data.readProfessorData(classSelect);
-                       
-                       for (String i : professorName) {
-                           professorComboBox.addItem(i);
-                       }
-                  } catch (IOException ioException) {
-                       Logger.getLogger(ClassLecture.class.getName()).log(Level.SEVERE, null, ioException);
-                  }
-              }
+           classButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    classSelect = (String) comboBox.getSelectedItem();
+                    System.out.println(classSelect);
+                    try {
+                        // 기존 항목 제거
+                        professorComboBox.removeAllItems();
+
+                        // 새 데이터를 추가
+                        CopyOnWriteArrayList<String> professorName = data.readProfessorData(classSelect);
+                        for (String i : professorName) {
+                            professorComboBox.addItem(i);
+                        }
+                    } catch (IOException ioException) {
+                        Logger.getLogger(ClassLecture.class.getName()).log(Level.SEVERE, null, ioException);
+                    }
+                }
             });
             add(classButton, detail);
             
