@@ -9,7 +9,7 @@ public class ProfessorUi extends JFrame {
     private final JTextField professorNameField;
     private final JTextField departmentField;
     private final JTextField ssnField;
-    private final JTextField gradeField; // 학점 입력 필드 추가
+    private final JTextField gradeField; // 학점 입력 필드
 
     private final ProfessorExcelHandler professorExcelHandler;
 
@@ -45,12 +45,7 @@ public class ProfessorUi extends JFrame {
         detail.gridwidth = 2; // 버튼 패널이 입력 필드와 동일한 너비를 차지하도록 설정
         add(buttonPanel, detail);
 
-        // 점수 관리 창 열기 버튼 추가
-        JButton scoreButton = createButton("점수 관리 창 열기", e -> openProfessorServiceUi());
-        detail.gridx = 0;
-        detail.gridy = 6;
-        detail.gridwidth = 2; // 점수 관리 창 버튼을 양옆으로 길게 설정
-        add(scoreButton, detail);
+        // 점수 관리 창 열기 버튼을 제거하였습니다.
 
         setVisible(true);
     }
@@ -116,9 +111,7 @@ public class ProfessorUi extends JFrame {
         JOptionPane.showMessageDialog(this, result != null ? "교수 정보: " + result : "해당 교수 정보를 찾을 수 없습니다.");
     }
 
-    private void openProfessorServiceUi() {
-        new ProfessorServiceUi(); // 점수 관리 창 열기
-    }
+    // 점수 관리 창 열기 메서드를 제거하였습니다.
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ProfessorUi::new);
