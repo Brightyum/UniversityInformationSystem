@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import project.ui.ModifyUser;
+import project.Login.ModifyUserUi;
 /**
  *
  * @author user
@@ -83,7 +83,7 @@ public class ClassesUi extends JFrame {
         modifyUser.addActionListener(new ActionListener() {
             @Override
              public void actionPerformed(ActionEvent e) {
-                 new ModifyUser().setVisible(true);
+                 new ModifyUserUi().setVisible(true);
              }
         });
         detail.gridx = 0;
