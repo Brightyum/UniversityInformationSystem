@@ -150,7 +150,6 @@ public class StudentExcelHandler {
 
     private String getCellValue(Row row, int cellIndex) {
         Cell cell = row.getCell(cellIndex);
-<<<<<<< HEAD
         if (cell == null) {
             return "";
         }
