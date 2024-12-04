@@ -18,7 +18,7 @@ public class ProfessorServiceUi extends JFrame {
         studentExcelHandler = new StudentExcelHandler();
 
         setSize(600, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 창 닫기 시 종료하지 않고 종료
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // 창 닫기 시 프로그램 종료하지 않음
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 
