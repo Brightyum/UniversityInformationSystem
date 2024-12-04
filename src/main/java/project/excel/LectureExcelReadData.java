@@ -22,7 +22,7 @@ public class LectureExcelReadData {
             classIndex, studentIndex, minStudentIndex,studentNameIndex,
             nextRow, maxStudentIndex, professorName, studentLectureIndex, 
             maxCredit, creditIndex, classNumIndex, confirmLectureIndex, nameIndex,
-            scoreIndex;
+            scoreIndex, departmentIndex;
     private String lectureFilePath, studentFilePath;
     
     public LectureExcelReadData(){
@@ -38,6 +38,7 @@ public class LectureExcelReadData {
         professorName = confirmLectureIndex = 6;
         maxCredit = 18;
         creditIndex = 4;
+        departmentIndex = 2;
     }
     
     public CopyOnWriteArrayList<CopyOnWriteArrayList<Object>> readLectureStaffExcel() throws IOException {
@@ -312,9 +313,13 @@ public class LectureExcelReadData {
             Row row = studentSheet.getRow(rowIndex);
             if (row != null) {
                 Cell studentCell = row.getCell(nameIndex);
-                
-                for (String i : currentValue) {
-                    
+                if (studentCell != null) {
+                    for (String i : currentValue) {
+                        if (studentCell.toString().equals(i)) {
+                            Cell departmentCell = row.getCell(departmentIndex);
+                            data.put(departmentCell.toString(), i);
+                        }
+                    }
                 }
             }
         }
