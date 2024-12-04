@@ -113,8 +113,9 @@ public class StudentServicesUi extends JFrame {
 
                     StudentBill object = new StudentBill(name, data);
                     object.setVisible(true);
-                } catch (Exception ex) {
-                    ex.printStackTrace(); // 예외 발생 시 로그 출력
+                } catch (IOException ex) {
+                    // 예외 발생 시 로그 출력
+                    
                 }
             }
         });

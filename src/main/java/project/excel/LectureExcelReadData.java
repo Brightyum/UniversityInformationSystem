@@ -286,29 +286,39 @@ public class LectureExcelReadData {
         return data;
     }
     
-    public Map<String, String> getLectureStudent(String name) throws IOException {
-        Map<String, String> data = new HashMap<>();
+    public Map<String, List<String>> getLectureStudent(String name, String select) throws IOException {
+        Map<String, List<String>> data = new HashMap<>();
         String[] currentValue = {};
+
+        // 강좌 파일 읽기
         FileInputStream file = new FileInputStream(lectureFilePath);
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(startIndex);
-        
+
+        // 강좌에서 교수 이름을 기준으로 학생 명단 추출
         for (Row row : sheet) {
-            Cell professorCell = row.getCell(professorName);
-            if (professorCell != null && professorCell.toString().equals(name)) {
-                Cell studentsCell = row.getCell(studentNameIndex);
-                
-                if (studentsCell != null) {
-                    currentValue = studentsCell.toString().split(",");
+            Cell lectureCell = row.getCell(classIndex);
+            if (lectureCell != null && lectureCell.toString().equals(select)) {
+                Cell professorCell = row.getCell(professorName);
+                if (professorCell != null && professorCell.toString().equals(name)) {
+                    Cell studentsCell = row.getCell(studentNameIndex);
+                    if (studentsCell != null) {
+                        currentValue = studentsCell.toString().split(",");
+                    }
+                    break;
                 }
-                break;
             }
+            
+            
         }
-        
+        file.close();
+
+        // 학생 파일 읽기
         FileInputStream studentFile = new FileInputStream(studentFilePath);
         Workbook studentWorkbook = new XSSFWorkbook(studentFile);
         Sheet studentSheet = studentWorkbook.getSheetAt(startIndex);
-        
+
+        // 학생 명단과 매칭
         for (int rowIndex = nextRow; rowIndex <= studentSheet.getLastRowNum(); rowIndex++) {
             Row row = studentSheet.getRow(rowIndex);
             if (row != null) {
@@ -317,13 +327,88 @@ public class LectureExcelReadData {
                     for (String i : currentValue) {
                         if (studentCell.toString().equals(i)) {
                             Cell departmentCell = row.getCell(departmentIndex);
-                            data.put(departmentCell.toString(), i);
+                            String department = departmentCell.toString();
+                            String studentName = studentCell.toString();
+
+                            // 동일 학과의 학생을 리스트로 저장
+                            data.computeIfAbsent(department, k -> new ArrayList<>()).add(studentName);
                         }
                     }
                 }
             }
         }
+        studentFile.close();
         return data;
+    }
+    
+    public Map<String, List<String>> getStudentInformation(String name, String select) throws IOException {
+        Map<String, List<String>> data = new HashMap<>();
+        String[] currentStudents = {};
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (Row row : sheet) {
+            Cell lectureCell = row.getCell(classIndex);
+            Cell professorCell = row.getCell(professorName);
+            if (lectureCell != null && professorCell != null 
+               && lectureCell.toString().equals(select) && professorCell.toString().equals(name)) {
+               Cell studentsCell = row.getCell(studentNameIndex);
+               if (studentsCell != null) {
+                   currentStudents = studentsCell.toString().split(",");
+               }
+               break;
+            }
+        }
+        file.close();
+        
+        FileInputStream studentFile = new FileInputStream(studentFilePath);
+        Workbook studentWorkbook = new XSSFWorkbook(studentFile);
+        Sheet studentSheet = studentWorkbook.getSheetAt(startIndex);
+        
+        for (int rowIndex = nextRow; rowIndex <= studentSheet.getLastRowNum(); rowIndex++) {
+            Row row = studentSheet.getRow(rowIndex);
+            if (row != null) {
+                Cell nameCell = row.getCell(nameIndex);
+                if (nameCell != null) {
+                    for (String i : currentStudents) {
+                        if (nameCell.toString().equals(i)) {
+                            Cell numCell = row.getCell(startIndex);
+                            Cell creditCell = row.getCell(creditIndex);
+                            
+                            if (numCell != null && creditCell != null) {
+                                // numCell과 creditCell 값을 리스트로 저장
+                                List<String> values = new ArrayList<>();
+                                values.add(numCell.toString());
+                                values.add(creditCell.toString());
+
+                                // i를 키로 하고 리스트를 값으로 설정
+                                data.put(i, values);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        studentFile.close();
+        return data;
+    }
+    
+    public CopyOnWriteArrayList<String> lectureName(String name) throws IOException {
+        CopyOnWriteArrayList<String> lectureName = new CopyOnWriteArrayList<>();
+        
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (Row row : sheet) {
+            Cell professorCell = row.getCell(professorName);
+            if (professorCell != null && professorCell.toString().equals(name)) {
+                Cell lectureCell = row.getCell(classIndex);
+                lectureName.add(lectureCell.toString());
+            }
+        }
+        return lectureName;
     }
 
     
