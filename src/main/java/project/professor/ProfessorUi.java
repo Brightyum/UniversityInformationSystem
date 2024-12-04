@@ -9,13 +9,14 @@ public class ProfessorUi extends JFrame {
     private final JTextField professorNameField;
     private final JTextField departmentField;
     private final JTextField ssnField;
+
     private final ProfessorExcelHandler professorExcelHandler;
 
     public ProfessorUi() {
         super("교수 정보 관리 창");
         professorExcelHandler = new ProfessorExcelHandler();
 
-        setSize(600, 600);
+        setSize(400, 400); // UI 크기 조정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
@@ -30,11 +31,17 @@ public class ProfessorUi extends JFrame {
         departmentField = addLabelAndField("학과:", 2, detail);
         ssnField = addLabelAndField("주민등록번호:", 3, detail);
 
-        // 버튼 추가
-        addButton("교수 정보 등록", 4, detail, e -> registerProfessor());
-        addButton("교수 정보 수정", 5, detail, e -> updateProfessor());
-        addButton("교수 정보 조회", 6, detail, e -> searchProfessor());
-        addButton("교수 정보 삭제", 7, detail, e -> deleteProfessor());
+        // 버튼을 그리드 형식으로 배치
+        JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 10, 10)); // 2열로 버튼 배치
+        buttonPanel.add(createButton("교수 정보 등록", e -> registerProfessor()));
+        buttonPanel.add(createButton("교수 정보 수정", e -> updateProfessor()));
+        buttonPanel.add(createButton("교수 정보 조회", e -> searchProfessor()));
+        buttonPanel.add(createButton("교수 정보 삭제", e -> deleteProfessor()));
+
+        detail.gridx = 0;
+        detail.gridy = 4;
+        detail.gridwidth = 2; // 버튼 패널이 입력 필드와 동일한 너비를 차지하도록 설정
+        add(buttonPanel, detail);
 
         setVisible(true);
     }
@@ -51,12 +58,10 @@ public class ProfessorUi extends JFrame {
         return field;
     }
 
-    private void addButton(String text, int row, GridBagConstraints detail, ActionListener action) {
-        detail.gridx = 1;
-        detail.gridy = row;
+    private JButton createButton(String text, ActionListener action) {
         JButton button = new JButton(text);
-        button.addActionListener(action); // Action Listener로 변경
-        add(button, detail);
+        button.addActionListener(action);
+        return button;
     }
 
     private void registerProfessor() {
@@ -70,18 +75,26 @@ public class ProfessorUi extends JFrame {
     }
 
     private void updateProfessor() {
-        boolean success = professorExcelHandler.updateProfessor(
-                professorNumberField.getText(),
-                professorNameField.getText(),
-                departmentField.getText(),
-                ssnField.getText()
-        );
-        JOptionPane.showMessageDialog(this, success ? "교수 정보가 수정되었습니다." : "해당 교수 정보를 찾을 수 없습니다.");
+        try {
+            boolean success = professorExcelHandler.updateProfessor(
+                    professorNumberField.getText(),
+                    professorNameField.getText(),
+                    departmentField.getText(),
+                    ssnField.getText()
+            );
+            JOptionPane.showMessageDialog(this, success ? "교수 정보가 수정되었습니다." : "해당 교수 정보를 찾을 수 없습니다.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }
 
     private void deleteProfessor() {
-        boolean success = professorExcelHandler.deleteProfessor(professorNumberField.getText());
-        JOptionPane.showMessageDialog(this, success ? "교수 정보가 삭제되었습니다." : "해당 교수 정보를 찾을 수 없습니다.");
+        try {
+            boolean success = professorExcelHandler.deleteProfessor(professorNumberField.getText());
+            JOptionPane.showMessageDialog(this, success ? "교수 정보가 삭제되었습니다." : "해당 교수 정보를 찾을 수 없습니다.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }
 
     private void searchProfessor() {

@@ -1,12 +1,14 @@
 package CourseManagement;
 
 import CourseManagement.GradesUi;
+import CourseManagement.EnrollmentUi;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Map;
 import javax.swing.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -19,9 +21,10 @@ public class StudentServicesUi extends JFrame {
     private CopyOnWriteArrayList<String> lectureData;
     private String select;
     private boolean check;
+
     public StudentServicesUi() throws IOException {
         setTitle("학생 창");
-        setSize(400, 250);
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -29,7 +32,7 @@ public class StudentServicesUi extends JFrame {
         GridBagConstraints detail = new GridBagConstraints();
         detail.fill = GridBagConstraints.HORIZONTAL; // 버튼이 수평으로 늘어나도록 설정
         detail.insets = new Insets(10, 100, 10, 100); // 버튼 간 여백
-       
+        
         LectureExcelReadData readObject = new LectureExcelReadData();
         LectureExcelSaveData saveObject = new LectureExcelSaveData();
         
@@ -39,6 +42,7 @@ public class StudentServicesUi extends JFrame {
         detail.gridx = 0;
         detail.gridy = 0;
         add(lectureLabel, detail);
+        
         JComboBox<String> lectureComboBox = new JComboBox<>();
         if (lectureData != null) {
             for (String i : lectureData) {
@@ -49,53 +53,57 @@ public class StudentServicesUi extends JFrame {
         detail.gridy = 0;
         add(lectureComboBox, detail);
         
-        // 수강신청 버튼 생성 및 추가
+        // 수강신청 버튼
         JButton enrollButton = new JButton("수강신청");
         detail.gridx = 2; // 첫 번째 열
         detail.gridy = 0; // 첫 번째 행
         
         enrollButton.addActionListener(new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-              try {
-                  // 테스트 데이터 이후에 생성자에서 매개변수로 학생을 구분할 수 있는 구분좌를 설정
-                  String name = "염승욱";
-                  select = (String)lectureComboBox.getSelectedItem();
-                  check = saveObject.addStudent(name, select);
-                  System.out.println(check);
-                  if (check == true) {
-                      boolean duplicateClass = saveObject.setStudentData(name, select);
-                      if (duplicateClass == true) {
-                          showMessageDialog(null, "수강신청완료.");
-                      }
-                  }
-              } catch (IOException ex) {
-                  Logger.getLogger(StudentServicesUi.class.getName()).log(Level.SEVERE, null, ex);
-              }
-          }
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String name = "염승욱";
+                    select = (String) lectureComboBox.getSelectedItem();
+                    check = saveObject.addStudent(name, select);
+                    System.out.println(check);
+                    if (check == true) {
+                        boolean duplicateClass = saveObject.setStudentData(name, select);
+                        if (duplicateClass == true) {
+                            showMessageDialog(null, "수강신청완료.");
+                        }
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(StudentServicesUi.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         });
         add(enrollButton, detail);
         
-        // 성적 확인 버튼 생성 및 추가
+        // 성적 확인 버튼
         JButton gradesButton = new JButton("성적 확인");
+        gradesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String name = "염승욱";  // 로그인 했을때 데이터 받아오기
+                    Map<String, String> scoreData = readObject.getScore(name);
+                    GradesUi object = new GradesUi(scoreData); // 성적 확인 창 열기
+                    object.setVisible(true);
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(StudentServicesUi.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
         detail.gridx = 0; 
         detail.gridy = 1; // 두 번째 행
         add(gradesButton, detail);
         
-  
-        
-        // 성적 확인 버튼 클릭 이벤트 처리
-        gradesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new GradesUi(); // 새로운 성적 확인 창 열기
-            }
-        });
-        
+        // 수강료 확인 버튼
         JButton getBillButton = new JButton("수강료 확인하기");
         detail.gridx = 1;
         detail.gridy = 1;
-
+        
         getBillButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -105,13 +113,14 @@ public class StudentServicesUi extends JFrame {
 
                     StudentBill object = new StudentBill(name, data);
                     object.setVisible(true);
-                } catch (Exception ex) {
-                    ex.printStackTrace(); // 예외 발생 시 로그 출력
+                } catch (IOException ex) {
+                    // 예외 발생 시 로그 출력
+                    
                 }
             }
         });
         add(getBillButton, detail);
-
+        
         setVisible(true);
     }
     

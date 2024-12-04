@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,8 +12,19 @@ public class StudentExcelHandler {
     private static final String FILE_PATH = "Student_data.xlsx";
     private static final Logger logger = Logger.getLogger(StudentExcelHandler.class.getName());
 
-    public void registerStudent(String studentNumber, String studentName, String department, String ssn) {
-        modifySheet(sheet -> {
+    // 열 인덱스 상수 선언
+    private static final int COLUMN_STUDENT_NUMBER = 0;       // 학번
+    private static final int COLUMN_NAME = 1;                 // 이름
+    private static final int COLUMN_DEPARTMENT = 2;           // 학과
+    private static final int COLUMN_SSN = 3;                  // 주민번호
+    private static final int COLUMN_CREDITS = 4;              // 학점
+    private static final int COLUMN_REGISTERED_COURSES = 5;   // 등록 강좌
+    private static final int COLUMN_TAKEN_COURSES = 6;        // 수강된 강좌
+    private static final int COLUMN_TUITION = 7;              // 수강료
+    private static final int COLUMN_SCORES = 8;               // 등록 성적
+
+    public boolean registerStudent(String studentNumber, String studentName, String department, String ssn) {
+        return modifySheet(sheet -> {
             Row row = createNewRow(sheet);
             setCellValues(row, studentNumber, studentName, department, ssn);
             logger.info("학생 등록 완료: " + studentNumber + ", " + studentName);
@@ -21,7 +33,7 @@ public class StudentExcelHandler {
 
     public boolean updateStudent(String studentNumber, String studentName, String department, String ssn) {
         return modifySheet(sheet -> {
-            Row row = findRowByValue(sheet, studentNumber);
+            Row row = findRowByStudentNumber(sheet, studentNumber);
             if (row != null) {
                 setCellValues(row, studentNumber, studentName, department, ssn);
                 logger.info("학생 정보 업데이트 완료: " + studentNumber + ", " + studentName);
@@ -34,7 +46,7 @@ public class StudentExcelHandler {
 
     public boolean deleteStudent(String studentNumber) {
         return modifySheet(sheet -> {
-            Row row = findRowByValue(sheet, studentNumber);
+            Row row = findRowByStudentNumber(sheet, studentNumber);
             if (row != null) {
                 removeRow(sheet, row);
                 logger.info("학생 삭제 완료: " + studentNumber);
@@ -49,8 +61,11 @@ public class StudentExcelHandler {
         return executeWorkbookOperation(workbook -> {
             Sheet sheet = workbook.getSheetAt(0);
             for (Row row : sheet) {
-                if ((studentNumber.isEmpty() || getCellValue(row, 0).equals(studentNumber)) &&
-                        (studentName.isEmpty() || getCellValue(row, 1).equals(studentName))) {
+                String cellStudentNumber = getCellValue(row, COLUMN_STUDENT_NUMBER);
+                String cellStudentName = getCellValue(row, COLUMN_NAME);
+
+                if ((studentNumber.isEmpty() || studentNumber.equals(cellStudentNumber)) &&
+                        (studentName.isEmpty() || studentName.equals(cellStudentName))) {
                     String result = rowToString(row);
                     logger.info("학생 검색 성공: " + result);
                     return result;
@@ -61,44 +76,191 @@ public class StudentExcelHandler {
         });
     }
 
+    public boolean addOrUpdateScore(String studentNumber, String courseName, String grade) {
+        // 성적 검증 및 변환
+        Double numericGrade = convertGradeToNumeric(grade);
+        if (numericGrade == null) {
+            return false; // 잘못된 성적 입력
+        }
+
+        return modifySheet(sheet -> {
+            Row row = findRowByStudentNumber(sheet, studentNumber);
+            if (row == null) {
+                logger.warning("점수를 추가/수정하려는 학생을 찾을 수 없음: " + studentNumber);
+                throw new IllegalStateException("학생을 찾을 수 없습니다.");
+            }
+
+            Cell scoreCell = row.getCell(COLUMN_SCORES, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            if (scoreCell.getCellType() != CellType.STRING) {
+                scoreCell.setCellType(CellType.STRING);
+            }
+
+            String existingScores = getCellValue(scoreCell);
+
+            // 기존 성적 파싱
+            Map<String, Double> scoreMap = parseScores(existingScores);
+
+            // 새로운 성적으로 업데이트
+            scoreMap.put(courseName, numericGrade);
+
+            // 다시 문자열로 변환하여 저장
+            String updatedScores = scoresToString(scoreMap);
+            scoreCell.setCellValue(updatedScores);
+
+            logger.info("점수 입력/수정 완료: " + studentNumber + " - " + courseName + "/" + numericGrade);
+        });
+    }
+
+    // 성적 검증 및 변환 메서드 추가
+    private Double convertGradeToNumeric(String grade) {
+        if (grade == null) {
+            return null;
+        }
+        switch (grade.toUpperCase()) {
+            case "A":
+                return 4.0;
+            case "B":
+                return 3.0;
+            case "C":
+                return 2.0;
+            case "D":
+                return 1.0;
+            case "F":
+                return 0.0;
+            default:
+                return null;
+        }
+    }
+
+    // 기존 성적 파싱 메서드 수정
+    private Map<String, Double> parseScores(String scores) {
+        Map<String, Double> scoreMap = new HashMap<>();
+        if (scores == null || scores.isEmpty()) {
+            return scoreMap;
+        }
+
+        String[] entries = scores.split(",");
+        for (String entry : entries) {
+            String[] parts = entry.trim().split("/");
+            if (parts.length == 2) {
+                String course = parts[0].trim();
+                String gradeStr = parts[1].trim();
+
+                // 유효한 성적인지 확인
+                Double numericGrade = null;
+
+                try {
+                    numericGrade = Double.parseDouble(gradeStr);
+                    if (!isValidNumericGrade(numericGrade)) {
+                        numericGrade = null; // 유효하지 않은 숫자 성적
+                    }
+                } catch (NumberFormatException e) {
+                    // 숫자가 아닌 경우
+                    numericGrade = convertGradeToNumeric(gradeStr);
+                }
+
+                if (numericGrade != null) {
+                    scoreMap.put(course, numericGrade);
+                }
+                // 유효하지 않은 성적은 무시하여 제거
+            }
+        }
+        return scoreMap;
+    }
+
+    // 유효한 숫자 성적인지 확인하는 메서드 추가
+    private boolean isValidNumericGrade(Double grade) {
+        return grade.equals(4.0) || grade.equals(3.0) || grade.equals(2.0) || grade.equals(1.0) || grade.equals(0.0);
+    }
+
+    // 성적 정보를 문자열로 변환하는 메서드
+    private String scoresToString(Map<String, Double> scoreMap) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Double> entry : scoreMap.entrySet()) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append(entry.getKey()).append("/").append(entry.getValue());
+        }
+        return sb.toString();
+    }
+
     private boolean modifySheet(SheetOperation operation) {
-        return Boolean.TRUE.equals(executeWorkbookOperation(workbook -> {
+        Workbook workbook = null;
+        try {
+            File file = new File(FILE_PATH);
+            if (file.exists()) {
+                try (FileInputStream fileIn = new FileInputStream(file)) {
+                    workbook = new XSSFWorkbook(fileIn);
+                }
+            } else {
+                workbook = new XSSFWorkbook();
+                workbook.createSheet("Sheet1");
+            }
             Sheet sheet = workbook.getSheetAt(0);
             operation.execute(sheet);
             saveWorkbook(workbook);
             return true;
-        }));
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "파일 접근 중 I/O 오류 발생: " + FILE_PATH, e);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "modifySheet 중 오류 발생", e);
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "워크북 닫는 중 오류 발생", e);
+                }
+            }
+        }
+        return false;
     }
 
     private <T> T executeWorkbookOperation(WorkbookOperation<T> operation) {
-        try (FileInputStream fileIn = new FileInputStream(FILE_PATH);
-             Workbook workbook = new XSSFWorkbook(fileIn)) {
-
-            return operation.execute(workbook);
-
-        } catch (FileNotFoundException e) {
-            logger.log(Level.SEVERE, "파일을 찾을 수 없습니다: " + FILE_PATH, e);
-            return null;
+        Workbook workbook = null;
+        try {
+            File file = new File(FILE_PATH);
+            if (file.exists()) {
+                try (FileInputStream fileIn = new FileInputStream(file)) {
+                    workbook = new XSSFWorkbook(fileIn);
+                }
+                return operation.execute(workbook);
+            } else {
+                logger.log(Level.WARNING, "파일을 찾을 수 없습니다: " + FILE_PATH);
+                return null;
+            }
         } catch (IOException e) {
             logger.log(Level.SEVERE, "파일 접근 중 I/O 오류 발생: " + FILE_PATH, e);
-            return null;
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "워크북 닫는 중 오류 발생", e);
+                }
+            }
         }
+        return null;
     }
 
     private Row createNewRow(Sheet sheet) {
-        return sheet.createRow(sheet.getLastRowNum() + 1);
+        int lastRowNum = sheet.getLastRowNum();
+        return sheet.createRow(lastRowNum + 1);
     }
 
-    private void setCellValues(Row row, String... values) {
-        for (int i = 0; i < values.length; i++) {
-            Cell cell = row.createCell(i, CellType.STRING);
-            cell.setCellValue(values[i]);
-        }
+    private void setCellValues(Row row, String studentNumber, String studentName, String department, String ssn) {
+        row.createCell(COLUMN_STUDENT_NUMBER, CellType.STRING).setCellValue(studentNumber);
+        row.createCell(COLUMN_NAME, CellType.STRING).setCellValue(studentName);
+        row.createCell(COLUMN_DEPARTMENT, CellType.STRING).setCellValue(department);
+        row.createCell(COLUMN_SSN, CellType.STRING).setCellValue(ssn);
+        // 필요한 경우 다른 컬럼도 설정
     }
 
-    private Row findRowByValue(Sheet sheet, String value) {
+    private Row findRowByStudentNumber(Sheet sheet, String studentNumber) {
         for (Row row : sheet) {
-            if (value.equals(getCellValue(row, 0))) {
+            String cellValue = getCellValue(row, COLUMN_STUDENT_NUMBER).trim();
+            if (studentNumber.trim().equals(cellValue)) {
                 return row;
             }
         }
@@ -106,53 +268,55 @@ public class StudentExcelHandler {
     }
 
     private void removeRow(Sheet sheet, Row rowToRemove) {
-        if (rowToRemove == null) {
-            throw new IllegalArgumentException("삭제할 행은 null일 수 없습니다.");
-        }
-
         int rowIndex = rowToRemove.getRowNum();
         int lastRowNum = sheet.getLastRowNum();
         if (rowIndex >= 0 && rowIndex < lastRowNum) {
-            sheet.shiftRows(rowIndex + 1, lastRowNum, -1); // 아래 행을 위로 이동
+            sheet.shiftRows(rowIndex + 1, lastRowNum, -1);
             logger.info("행 삭제 완료. 삭제된 행 인덱스: " + rowIndex);
         } else if (rowIndex == lastRowNum) {
-            sheet.removeRow(rowToRemove); // 마지막 행 삭제
+            sheet.removeRow(rowToRemove);
             logger.info("마지막 행 삭제 완료. 삭제된 행 인덱스: " + rowIndex);
         }
     }
 
     private String getCellValue(Row row, int cellIndex) {
-        Cell cell = row.getCell(cellIndex);
+        Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        return getCellValue(cell);
+    }
+
+    private String getCellValue(Cell cell) {
         if (cell == null) {
             return "";
         }
 
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getLocalDateTimeCellValue().toString();
-                } else {
-                    return String.valueOf(cell.getNumericCellValue());
-                }
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                try {
-                    return cell.getStringCellValue();
-                } catch (IllegalStateException e) {
-                    return String.valueOf(cell.getNumericCellValue());
-                }
-            default:
-                return "";
+        try {
+            switch (cell.getCellType()) {
+                case STRING:
+                    return cell.getStringCellValue().trim();
+                case NUMERIC:
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        return cell.getDateCellValue().toString();
+                    } else {
+                        return String.valueOf((long) cell.getNumericCellValue()).trim();
+                    }
+                case BOOLEAN:
+                    return String.valueOf(cell.getBooleanCellValue()).trim();
+                case FORMULA:
+                    return cell.getCellFormula().trim();
+                case BLANK:
+                    return "";
+                default:
+                    return "";
+            }
+        } catch (Exception e) {
+            return "";
         }
     }
 
     private String rowToString(Row row) {
         StringBuilder sb = new StringBuilder();
-        for (Cell cell : row) {
-            sb.append(cell.toString()).append(" ");
+        for (int i = 0; i <= COLUMN_SCORES; i++) {
+            sb.append(getCellValue(row, i)).append(" ");
         }
         return sb.toString().trim();
     }

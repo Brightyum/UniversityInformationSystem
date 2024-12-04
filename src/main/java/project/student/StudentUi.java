@@ -14,7 +14,7 @@ public class StudentUi extends JFrame {
     public StudentUi() {
         super("학생 정보 관리 창");
         studentExcelHandler = new StudentExcelHandler();
-        setSize(600, 600);
+        setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
@@ -29,11 +29,17 @@ public class StudentUi extends JFrame {
         addLabelAndField("학과:", 2, detail, departmentField = new JTextField(15));
         addLabelAndField("주민등록번호:", 3, detail, ssnField = new JTextField(15));
 
-        // 버튼 추가
-        addButton("학생 정보 등록", 4, detail, e -> registerStudent());
-        addButton("학생 정보 수정", 5, detail, e -> updateStudent());
-        addButton("학생 정보 조회", 6, detail, e -> searchStudent());
-        addButton("학생 정보 삭제", 7, detail, e -> deleteStudent());
+        // 버튼 패널 추가
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 2, 10, 10)); // 2x2 그리드
+        addButton(buttonPanel, "학생 정보 등록", e -> registerStudent());
+        addButton(buttonPanel, "학생 정보 수정", e -> updateStudent());
+        addButton(buttonPanel, "학생 정보 조회", e -> searchStudent());
+        addButton(buttonPanel, "학생 정보 삭제", e -> deleteStudent());
+
+        detail.gridx = 0;
+        detail.gridy = 4;
+        detail.gridwidth = 2; // 패널이 전체 폭을 차지하도록 설정
+        add(buttonPanel, detail);
 
         setVisible(true);
     }
@@ -47,37 +53,43 @@ public class StudentUi extends JFrame {
         add(field, detail);
     }
 
-    private void addButton(String text, int row, GridBagConstraints detail, ActionListener action) {
-        detail.gridx = 1;
-        detail.gridy = row;
+    private void addButton(JPanel panel, String text, ActionListener action) {
         JButton button = new JButton(text);
         button.addActionListener(action);
-        add(button, detail);
+        panel.add(button);
     }
 
     private void registerStudent() {
-        studentExcelHandler.registerStudent(
+        boolean success = studentExcelHandler.registerStudent(
                 studentNumberField.getText(),
                 studentNameField.getText(),
                 departmentField.getText(),
                 ssnField.getText()
         );
-        JOptionPane.showMessageDialog(this, "학생 정보가 등록되었습니다.");
+        JOptionPane.showMessageDialog(this, success ? "학생 정보가 등록되었습니다." : "학생 정보 등록에 실패했습니다.");
     }
 
     private void updateStudent() {
-        boolean success = studentExcelHandler.updateStudent(
-                studentNumberField.getText(),
-                studentNameField.getText(),
-                departmentField.getText(),
-                ssnField.getText()
-        );
-        showMessage(success, "학생 정보가 수정되었습니다.");
+        try {
+            boolean success = studentExcelHandler.updateStudent(
+                    studentNumberField.getText(),
+                    studentNameField.getText(),
+                    departmentField.getText(),
+                    ssnField.getText()
+            );
+            showMessage(success, "학생 정보가 수정되었습니다.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }
 
     private void deleteStudent() {
-        boolean success = studentExcelHandler.deleteStudent(studentNumberField.getText());
-        showMessage(success, "학생 정보가 삭제되었습니다.");
+        try {
+            boolean success = studentExcelHandler.deleteStudent(studentNumberField.getText());
+            showMessage(success, "학생 정보가 삭제되었습니다.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }
 
     private void searchStudent() {
