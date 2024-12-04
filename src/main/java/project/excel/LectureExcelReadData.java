@@ -287,6 +287,7 @@ public class LectureExcelReadData {
     
     public Map<String, String> getLectureStudent(String name) throws IOException {
         Map<String, String> data = new HashMap<>();
+        String[] currentValue = {};
         FileInputStream file = new FileInputStream(lectureFilePath);
         Workbook workbook = new XSSFWorkbook(file);
         Sheet sheet = workbook.getSheetAt(startIndex);
@@ -297,7 +298,23 @@ public class LectureExcelReadData {
                 Cell studentsCell = row.getCell(studentNameIndex);
                 
                 if (studentsCell != null) {
-                    String[] currentValue = studentsCell.toString().split(",");
+                    currentValue = studentsCell.toString().split(",");
+                }
+                break;
+            }
+        }
+        
+        FileInputStream studentFile = new FileInputStream(studentFilePath);
+        Workbook studentWorkbook = new XSSFWorkbook(studentFile);
+        Sheet studentSheet = studentWorkbook.getSheetAt(startIndex);
+        
+        for (int rowIndex = nextRow; rowIndex <= studentSheet.getLastRowNum(); rowIndex++) {
+            Row row = studentSheet.getRow(rowIndex);
+            if (row != null) {
+                Cell studentCell = row.getCell(nameIndex);
+                
+                for (String i : currentValue) {
+                    
                 }
             }
         }
