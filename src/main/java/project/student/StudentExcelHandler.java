@@ -61,7 +61,13 @@ public class StudentExcelHandler {
         });
     }
 
-    public boolean addOrUpdateScore(String studentNumber, String courseName, int score) {
+    public boolean addOrUpdateScore(String studentNumber, String courseName, String grade) {
+        // 성적 변환 및 검증
+        Double numericGrade = convertGradeToNumeric(grade);
+        if (numericGrade == null) {
+            return false; // 입력이 잘못되었으므로 실패
+        }
+
         return modifySheet(sheet -> {
             Row row = findRowByValue(sheet, studentNumber);
             if (row == null) {
@@ -76,7 +82,7 @@ public class StudentExcelHandler {
 
             String existingScores = getCellValue(scoreCell);
 
-            String newEntry = courseName + "/" + score;
+            String newEntry = courseName + "/" + numericGrade;
 
             if (existingScores.isEmpty()) {
                 scoreCell.setCellValue(newEntry);
@@ -101,6 +107,27 @@ public class StudentExcelHandler {
             }
             logger.info("점수 입력/수정 완료: " + studentNumber + " - " + newEntry);
         });
+    }
+
+    // 성적 변환 메서드 추가
+    private Double convertGradeToNumeric(String grade) {
+        if (grade == null) {
+            return null;
+        }
+        switch (grade.toUpperCase()) {
+            case "A":
+                return 4.0;
+            case "B":
+                return 3.0;
+            case "C":
+                return 2.0;
+            case "D":
+                return 1.0;
+            case "F":
+                return 0.0;
+            default:
+                return null;
+        }
     }
 
     private boolean modifySheet(SheetOperation operation) {
@@ -205,7 +232,7 @@ public class StudentExcelHandler {
                 case STRING:
                     return cell.getStringCellValue();
                 case NUMERIC:
-                    return String.valueOf((long) cell.getNumericCellValue());
+                    return String.valueOf(cell.getNumericCellValue());
                 case BOOLEAN:
                     return String.valueOf(cell.getBooleanCellValue());
                 case FORMULA:
