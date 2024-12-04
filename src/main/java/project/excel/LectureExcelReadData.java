@@ -285,7 +285,24 @@ public class LectureExcelReadData {
         return data;
     }
     
-   // public
+    public Map<String, String> getLectureStudent(String name) throws IOException {
+        Map<String, String> data = new HashMap<>();
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (Row row : sheet) {
+            Cell professorCell = row.getCell(professorName);
+            if (professorCell != null && professorCell.toString().equals(name)) {
+                Cell studentsCell = row.getCell(studentNameIndex);
+                
+                if (studentsCell != null) {
+                    String[] currentValue = studentsCell.toString().split(",");
+                }
+            }
+        }
+        return data;
+    }
 
     
         // 셀 값을 파싱하여 double로 반환하는 메서드

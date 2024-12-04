@@ -7,6 +7,7 @@ package CourseManagement;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import project.excel.LectureExcelReadData;
 /**
  *
  * @author user
@@ -17,6 +18,8 @@ public class ProfessorCheck extends JFrame {
         setSize(600, 550);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); 
         setLocationRelativeTo(null);
+        
+        LectureExcelReadData readObject = new LectureExcelReadData();
         
         JButton attendanceButton = new JButton("출석부 조회");
         attendanceButton.addActionListener(new ActionListener() {
