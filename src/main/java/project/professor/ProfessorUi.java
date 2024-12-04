@@ -9,7 +9,6 @@ public class ProfessorUi extends JFrame {
     private final JTextField professorNameField;
     private final JTextField departmentField;
     private final JTextField ssnField;
-    private final JTextField gradeField; // 학점 입력 필드
 
     private final ProfessorExcelHandler professorExcelHandler;
 
@@ -17,7 +16,7 @@ public class ProfessorUi extends JFrame {
         super("교수 정보 관리 창");
         professorExcelHandler = new ProfessorExcelHandler();
 
-        setSize(400, 500); // UI 크기 조정
+        setSize(400, 400); // UI 크기 조정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
@@ -31,7 +30,6 @@ public class ProfessorUi extends JFrame {
         professorNameField = addLabelAndField("이름:", 1, detail);
         departmentField = addLabelAndField("학과:", 2, detail);
         ssnField = addLabelAndField("주민등록번호:", 3, detail);
-        gradeField = addLabelAndField("학점:", 4, detail); // 학점 입력 필드
 
         // 버튼을 그리드 형식으로 배치
         JPanel buttonPanel = new JPanel(new GridLayout(0, 2, 10, 10)); // 2열로 버튼 배치
@@ -41,11 +39,9 @@ public class ProfessorUi extends JFrame {
         buttonPanel.add(createButton("교수 정보 삭제", e -> deleteProfessor()));
 
         detail.gridx = 0;
-        detail.gridy = 5;
+        detail.gridy = 4;
         detail.gridwidth = 2; // 버튼 패널이 입력 필드와 동일한 너비를 차지하도록 설정
         add(buttonPanel, detail);
-
-        // 점수 관리 창 열기 버튼을 제거하였습니다.
 
         setVisible(true);
     }
@@ -73,8 +69,7 @@ public class ProfessorUi extends JFrame {
                 professorNumberField.getText(),
                 professorNameField.getText(),
                 departmentField.getText(),
-                ssnField.getText(),
-                gradeField.getText() // 학점 전달
+                ssnField.getText()
         );
         JOptionPane.showMessageDialog(this, success ? "교수 정보가 등록되었습니다." : "교수 정보 등록에 실패했습니다.");
     }
@@ -85,8 +80,7 @@ public class ProfessorUi extends JFrame {
                     professorNumberField.getText(),
                     professorNameField.getText(),
                     departmentField.getText(),
-                    ssnField.getText(),
-                    gradeField.getText() // 학점 전달
+                    ssnField.getText()
             );
             JOptionPane.showMessageDialog(this, success ? "교수 정보가 수정되었습니다." : "해당 교수 정보를 찾을 수 없습니다.");
         } catch (Exception e) {
@@ -110,8 +104,6 @@ public class ProfessorUi extends JFrame {
         );
         JOptionPane.showMessageDialog(this, result != null ? "교수 정보: " + result : "해당 교수 정보를 찾을 수 없습니다.");
     }
-
-    // 점수 관리 창 열기 메서드를 제거하였습니다.
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ProfessorUi::new);
