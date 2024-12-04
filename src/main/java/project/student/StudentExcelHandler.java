@@ -175,9 +175,6 @@ public class StudentExcelHandler {
             default:
                 return "";
         }
-=======
-        return cell != null ? cell.getStringCellValue() : "";
->>>>>>> origin/develop
     }
 
 
