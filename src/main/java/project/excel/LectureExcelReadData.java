@@ -21,7 +21,8 @@ public class LectureExcelReadData {
     private int count, startIndex, targetIndex,
             classIndex, studentIndex, minStudentIndex,studentNameIndex,
             nextRow, maxStudentIndex, professorName, studentLectureIndex, 
-            maxCredit, creditIndex, classNumIndex, confirmLectureIndex, nameIndex;
+            maxCredit, creditIndex, classNumIndex, confirmLectureIndex, nameIndex,
+            scoreIndex;
     private String lectureFilePath, studentFilePath;
     
     public LectureExcelReadData(){
@@ -33,7 +34,7 @@ public class LectureExcelReadData {
         studentIndex = 9;
         minStudentIndex = 7;
         studentNameIndex = 10;
-        maxStudentIndex = 8;
+        maxStudentIndex = scoreIndex = 8;
         professorName = confirmLectureIndex = 6;
         maxCredit = 18;
         creditIndex = 4;
@@ -252,6 +253,39 @@ public class LectureExcelReadData {
         }
         return data;
     }
+    
+    public Map<String, String> getScore(String name) throws IOException {
+        Map<String, String> data = new HashMap<>();
+        
+        FileInputStream file = new FileInputStream(studentFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (int rowIndex = nextRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            if (row != null) {
+                Cell nameCell = row.getCell(nameIndex);
+                
+                if (nameCell != null && nameCell.toString().equals(name)) {
+                    Cell lectureScoreCell = row.getCell(scoreIndex);
+                    if (lectureScoreCell != null) {
+                        String[] currentValue = lectureScoreCell.toString().split(",");
+
+                        for (String i : currentValue) {
+                            String[] map = i.split("/");
+                            data.put(map[0], map[1]);
+                        }
+                    } else {
+                        return null;
+                    }
+                    break;
+                }
+            }
+        }
+        return data;
+    }
+    
+   // public
 
     
         // 셀 값을 파싱하여 double로 반환하는 메서드

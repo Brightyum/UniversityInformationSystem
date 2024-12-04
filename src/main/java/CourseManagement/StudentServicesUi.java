@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Map;
 import javax.swing.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -83,7 +84,15 @@ public class StudentServicesUi extends JFrame {
         gradesButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GradesUi(); // 성적 확인 창 열기
+                try {
+                    String name = "염승욱";  // 로그인 했을때 데이터 받아오기
+                    Map<String, String> scoreData = readObject.getScore(name);
+                    GradesUi object = new GradesUi(scoreData); // 성적 확인 창 열기
+                    object.setVisible(true);
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(StudentServicesUi.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
         detail.gridx = 0; 
