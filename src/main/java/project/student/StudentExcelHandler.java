@@ -150,8 +150,37 @@ public class StudentExcelHandler {
 
     private String getCellValue(Row row, int cellIndex) {
         Cell cell = row.getCell(cellIndex);
+<<<<<<< HEAD
+        if (cell == null) {
+            return "";
+        }
+
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                // 숫자를 문자열로 변환
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getLocalDateTimeCellValue().toString(); // 날짜 형식 처리
+                } else {
+                    return String.valueOf((long) cell.getNumericCellValue()); // 정수형으로 변환 후 문자열로 반환
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                try {
+                    return cell.getStringCellValue(); // 문자열 결과
+                } catch (IllegalStateException e) {
+                    return String.valueOf(cell.getNumericCellValue()); // 숫자 결과
+                }
+            default:
+                return "";
+        }
+=======
         return cell != null ? cell.getStringCellValue() : "";
+>>>>>>> origin/develop
     }
+
 
     private String rowToString(Row row) {
         StringBuilder sb = new StringBuilder();
