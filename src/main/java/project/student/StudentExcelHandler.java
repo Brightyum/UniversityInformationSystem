@@ -65,7 +65,7 @@ public class StudentExcelHandler {
         // 성적 변환 및 검증
         Double numericGrade = convertGradeToNumeric(grade);
         if (numericGrade == null) {
-            return false; // 입력이 잘못되었으므로 실패
+            return false; // 잘못된 성적 입력
         }
 
         return modifySheet(sheet -> {
