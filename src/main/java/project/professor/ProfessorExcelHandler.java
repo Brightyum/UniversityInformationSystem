@@ -11,19 +11,23 @@ public class ProfessorExcelHandler {
     private static final String FILE_PATH = "Professor_data.xlsx";
     private static final Logger logger = Logger.getLogger(ProfessorExcelHandler.class.getName());
 
-    public boolean registerProfessor(String professorNumber, String professorName, String department, String ssn) {
+    public boolean registerProfessor(String professorNumber, String professorName, String department, String ssn, String grade) {
         return modifySheet(sheet -> {
             Row row = createNewRow(sheet);
             setCellValues(row, professorNumber, professorName, department, ssn);
+            setGrade(row, grade); // 학점을 8열(인덱스 8)에 설정
             logger.info("교수 등록 완료: " + professorNumber + ", " + professorName);
         });
     }
 
-    public boolean updateProfessor(String professorNumber, String professorName, String department, String ssn) {
+    public boolean updateProfessor(String professorNumber, String professorName, String department, String ssn, String grade) {
         return modifySheet(sheet -> {
             Row row = findRowByValue(sheet, professorNumber);
             if (row != null) {
                 setCellValues(row, professorNumber, professorName, department, ssn);
+                if (grade != null && !grade.isEmpty()) {
+                    setGrade(row, grade); // 학점 업데이트
+                }
                 logger.info("교수 정보 업데이트 완료: " + professorNumber + ", " + professorName);
             } else {
                 logger.warning("업데이트 대상 교수를 찾을 수 없음: " + professorNumber);
@@ -62,22 +66,61 @@ public class ProfessorExcelHandler {
     }
 
     private boolean modifySheet(SheetOperation operation) {
-        return Boolean.TRUE.equals(executeWorkbookOperation(workbook -> {
+        Workbook workbook = null;
+        try {
+            File file = new File(FILE_PATH);
+            if (file.exists()) {
+                try (FileInputStream fileIn = new FileInputStream(file)) {
+                    workbook = new XSSFWorkbook(fileIn);
+                }
+            } else {
+                workbook = new XSSFWorkbook();
+                workbook.createSheet("Sheet1");
+            }
             Sheet sheet = workbook.getSheetAt(0);
             operation.execute(sheet);
             saveWorkbook(workbook);
             return true;
-        }));
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "파일 접근 중 I/O 오류 발생: " + FILE_PATH, e);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "modifySheet 중 오류 발생", e);
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "워크북 닫는 중 오류 발생", e);
+                }
+            }
+        }
+        return false;
     }
 
     private <T> T executeWorkbookOperation(WorkbookOperation<T> operation) {
-        try (FileInputStream fileIn = new FileInputStream(FILE_PATH);
-             Workbook workbook = new XSSFWorkbook(fileIn)) {
-            return operation.execute(workbook);
-        } catch (FileNotFoundException e) {
-            logger.log(Level.SEVERE, "파일을 찾을 수 없습니다: " + FILE_PATH, e);
+        Workbook workbook = null;
+        try {
+            File file = new File(FILE_PATH);
+            if (file.exists()) {
+                try (FileInputStream fileIn = new FileInputStream(file)) {
+                    workbook = new XSSFWorkbook(fileIn);
+                }
+                T result = operation.execute(workbook);
+                return result;
+            } else {
+                logger.log(Level.WARNING, "파일을 찾을 수 없습니다: " + FILE_PATH);
+                return null;
+            }
         } catch (IOException e) {
             logger.log(Level.SEVERE, "파일 접근 중 I/O 오류 발생: " + FILE_PATH, e);
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "워크북 닫는 중 오류 발생", e);
+                }
+            }
         }
         return null;
     }
@@ -93,9 +136,21 @@ public class ProfessorExcelHandler {
         }
     }
 
+    private void setGrade(Row row, String grade) {
+        Cell gradeCell = row.getCell(8, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK); // 인덱스 8
+        String existingGrades = getCellValue(gradeCell);
+
+        if (existingGrades.isEmpty()) {
+            gradeCell.setCellValue(grade);
+        } else {
+            // 기존 값에 새로운 학점 추가
+            gradeCell.setCellValue(existingGrades + "," + grade);
+        }
+    }
+
     private Row findRowByValue(Sheet sheet, String value) {
         for (Row row : sheet) {
-            if (getCellValue(row, 0).equals(value)) {
+            if (getCellValue(row, 0).equals(value)) { // 1열(인덱스 0) 기준 검색
                 return row;
             }
         }
@@ -115,14 +170,57 @@ public class ProfessorExcelHandler {
     }
 
     private String getCellValue(Row row, int cellIndex) {
-        Cell cell = row.getCell(cellIndex);
-        return cell != null ? cell.getStringCellValue() : "";
+        Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        if (cell == null) {
+            return "";
+        }
+
+        try {
+            switch (cell.getCellType()) {
+                case STRING:
+                    return cell.getStringCellValue();
+                case NUMERIC:
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        return cell.getDateCellValue().toString();
+                    } else {
+                        return String.valueOf((long) cell.getNumericCellValue());
+                    }
+                case BOOLEAN:
+                    return String.valueOf(cell.getBooleanCellValue());
+                case FORMULA:
+                    return cell.getCellFormula();
+                case BLANK:
+                    return "";
+                default:
+                    return "";
+            }
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String getCellValue(Cell cell) {
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((long) cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                return cell.getCellFormula();
+            case BLANK:
+                return "";
+            default:
+                return "";
+        }
     }
 
     private String rowToString(Row row) {
         StringBuilder sb = new StringBuilder();
         for (Cell cell : row) {
-            sb.append(cell.toString()).append(" ");
+            sb.append(getCellValue(cell)).append(" ");
         }
         return sb.toString().trim();
     }
