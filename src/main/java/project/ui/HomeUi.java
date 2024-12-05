@@ -6,12 +6,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HomeUi extends JFrame {
     public HomeUi() {
         // JFrame 설정
         setTitle("로그인"); // 창 제목 설정
-        setSize(500, 250); // 창 크기 설정
+        setSize(400, 200); // 창 크기 설정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //닫기 버튼 클릭 시 프로그램 종료
         setLocationRelativeTo(null); // 창을 화면 중앙에 배치
         
@@ -19,7 +22,7 @@ public class HomeUi extends JFrame {
         setLayout(new GridBagLayout());
         GridBagConstraints detail = new GridBagConstraints();
         detail.fill = GridBagConstraints.HORIZONTAL; // 컴포넌트 수평으로 늘릴 수 있도록 설정
-        detail.insets = new Insets(35, 30, -20, 30); // (위쪽, 왼쪽, 아이디 비번 사이, 오른쪽)
+        detail.insets = new Insets(25, 30, -20, 30); // (위쪽, 왼쪽, 아이디 비번 사이, 오른쪽)
         
         JLabel idLabel = new JLabel("아이디 : "); // 아이디 레이블
         detail.gridx = 0; // 첫 번째 열
@@ -69,7 +72,11 @@ public class HomeUi extends JFrame {
                 String role = LoginHandler.checkLogin(enteredId, enteredPwd);
                 if (role != null) {
                     dispose(); // 현재 창 닫기
-                    NavigationManager.navigate(role); // 역할에 따라 새 창 열기
+                    try {
+                        NavigationManager.navigate(role); // 역할에 따라 새 창 열기
+                    } catch (IOException ex) {
+                        Logger.getLogger(HomeUi.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
         });

@@ -4,12 +4,14 @@ import CourseManagement.ProfessorServicesUi;
 import CourseManagement.StudentServicesUi;
 import javax.swing.*;
 import project.ui.AcademicUi;
-import project.classer.*;
+import project.classer.ClassesUi;
+import java.io.IOException;
+
 
 public class NavigationManager {
 
     // 역할에 따른 화면 전환
-    public static void navigate(String role) {
+    public static void navigate(String role) throws IOException {
         switch (role) {
             case "Student":
                 new StudentServicesUi();

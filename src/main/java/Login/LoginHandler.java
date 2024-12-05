@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import javax.swing.*;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class LoginHandler {
@@ -29,38 +30,39 @@ public class LoginHandler {
 
     // 학생 데이터 검증
     private static boolean checkStudentLogin(String id, String password) {
-        return checkExcelLogin("Student_data.xlsx", id, password, "S", 0, 3);
+        return checkExcelLogin("Student_data.xlsx", id, password, "S", 0, 3, 6);
     }
 
     // 교수 데이터 검증
     private static boolean checkProfessorLogin(String id, String password) {
-        return checkExcelLogin("Professor_data.xlsx", id, password, "P", 0, 3);
+        return checkExcelLogin("Professor_data.xlsx", id, password, "P", 0, 3, 5);
     }
-    
+
     // 학사 담당자 데이터 검증
     private static boolean checkAcademicLogin(String id, String password) {
-        return checkExcelLogin("Academic_data.xlsx", id, password, "H", 0, 1);
+        return checkExcelLogin("Academic_data.xlsx", id, password, "H", 0, 1, 3);
     }
-    
+
     // 수업 담당자 데이터 검증
     private static boolean checkLectureStaffLogin(String id, String password) {
-        return checkExcelLogin("LectureStaff_data.xlsx", id, password, "G", 9, 10);
+        return checkExcelLogin("LectureStaff_data.xlsx", id, password, "G", 11, 12, 14);
     }
-    
-    
-    private static boolean checkExcelLogin(String fileName, String id, String password, String idPrefix, int idIndex, int ssnIndex) {
+
+    private static boolean checkExcelLogin(String fileName, String id, String password, String idPrefix, int idIndex, int defaultPasswordIndex, int savedPasswordIndex) {
         try (FileInputStream fis = new FileInputStream(new File(fileName));
-            Workbook workbook = new XSSFWorkbook(fis)) { // 엑셀 파일 열기
+             Workbook workbook = new XSSFWorkbook(fis)) { // 엑셀 파일 열기
             Sheet sheet = workbook.getSheetAt(0); // 첫 번째 시트 가져오기
 
             // 시트의 모든 행 반복
             for (Row row : sheet) {
                 Cell idCell = row.getCell(idIndex); // 지정된 열에서 ID 가져오기
-                Cell ssnCell = row.getCell(ssnIndex); // 지정된 열에서 주민등록번호 가져오기
+                Cell defaultPasswordCell = row.getCell(defaultPasswordIndex); // 기본 주민등록번호 파생 비밀번호 열
+                Cell savedPasswordCell = savedPasswordIndex >= 0 ? row.getCell(savedPasswordIndex) : null; // 저장된 비밀번호 열
 
-                if (idCell != null && ssnCell != null) {
+                if (idCell != null) {
                     String storedId = "";  // 엑셀에서 읽어온 ID 값
-                    String storedPwd = ""; // 엑셀에서 읽어온 비밀번호 값
+                    String storedPwd = ""; // 기존 파생 비밀번호 값
+                    String savedPwd = ""; // 저장된 비밀번호 값
 
                     // ID 처리
                     if (idCell.getCellType() == CellType.NUMERIC) { // ID가 숫자 : 접두사를 추가하여 저장
@@ -69,21 +71,32 @@ public class LoginHandler {
                         storedId = idCell.getStringCellValue().trim();
                     }
 
-                    // 주민등록번호 처리
-                    if (ssnCell.getCellType() == CellType.NUMERIC) { // 주민등록번호가 숫자
-                        String fullSsn = String.valueOf((long) ssnCell.getNumericCellValue());
-                        if (fullSsn.length() >= 7) {
-                            storedPwd = fullSsn.substring(fullSsn.length() - 7); 
-                        }
-                    } else if (ssnCell.getCellType() == CellType.STRING) { // 주민등록번호가 문자열
-                        String fullSsn = ssnCell.getStringCellValue().trim();
-                        if (fullSsn.length() >= 7) {
-                            storedPwd = fullSsn.substring(fullSsn.length() - 7);
+                    // 저장된 비밀번호 처리
+                    if (savedPasswordCell != null && savedPasswordCell.getCellType() == CellType.STRING) {
+                        savedPwd = savedPasswordCell.getStringCellValue().trim();
+                    }
+
+                    // 기본 주민등록번호 비밀번호 처리
+                    if (defaultPasswordCell != null) {
+                        if (defaultPasswordCell.getCellType() == CellType.NUMERIC) {
+                            String fullSsn = String.valueOf((long) defaultPasswordCell.getNumericCellValue());
+                            if (fullSsn.length() >= 7) {
+                                storedPwd = fullSsn.substring(fullSsn.length() - 7);
+                            }
+                        } else if (defaultPasswordCell.getCellType() == CellType.STRING) {
+                            String fullSsn = defaultPasswordCell.getStringCellValue().trim();
+                            if (fullSsn.length() >= 7) {
+                                storedPwd = fullSsn.substring(fullSsn.length() - 7);
+                            }
                         }
                     }
 
                     // 입력된 ID와 비밀번호를 비교
-                    if (storedId.equals(id) && storedPwd.equals(password)) {
+                    if (storedId.equals(id) && (savedPwd.equals(password) || storedPwd.equals(password))) {
+                        if (!savedPwd.equals(password)) {
+                            // 새 비밀번호 저장
+                            saveNewPassword(fileName, row, savedPasswordIndex, password);
+                        }
                         return true;
                     }
                 }
@@ -96,5 +109,23 @@ public class LoginHandler {
             JOptionPane.showMessageDialog(null, fileName + " 데이터에 문제가 있습니다.", "오류", JOptionPane.ERROR_MESSAGE);
         }
         return false; // 로그인 실패
+    }
+
+    private static void saveNewPassword(String fileName, Row row, int passwordIndex, String newPassword) {
+        if (passwordIndex < 0) return;
+
+        try (FileInputStream fis = new FileInputStream(new File(fileName));
+             Workbook workbook = new XSSFWorkbook(fis)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            Row currentRow = sheet.getRow(row.getRowNum());
+            Cell passwordCell = currentRow.createCell(passwordIndex, CellType.STRING);
+            passwordCell.setCellValue(newPassword);
+
+            try (FileOutputStream fos = new FileOutputStream(new File(fileName))) {
+                workbook.write(fos);
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "새 비밀번호를 저장하는 중 오류가 발생했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

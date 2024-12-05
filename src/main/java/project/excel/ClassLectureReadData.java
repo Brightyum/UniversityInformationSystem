@@ -72,7 +72,8 @@ public class ClassLectureReadData {
         
         for (Row row : sheetProfessor) {
             Cell cell = row.getCell(departmentIndex);
-            if (cell != null && cell.toString().equals(department)) {
+            String newDepartment = department.replaceAll("\\s+","");
+            if (cell != null && cell.toString().equals(newDepartment)) {
                 Cell dataCell = row.getCell(targetProfessorColumnIndex);
                 if(dataCell != null) {
                     professorName.add(dataCell.toString());
