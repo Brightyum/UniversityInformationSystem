@@ -1,7 +1,10 @@
-package CourseManagement;
+package project.ui;
 
 import CourseManagement.GradesUi;
 import CourseManagement.EnrollmentUi;
+import CourseManagement.GradesUi;
+import CourseManagement.StudentBill;
+import Login.ModifyUserUi;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -24,14 +27,16 @@ public class StudentServicesUi extends JFrame {
 
     public StudentServicesUi() throws IOException {
         setTitle("학생 창");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(500, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         
         setLayout(new GridBagLayout());
         GridBagConstraints detail = new GridBagConstraints();
         detail.fill = GridBagConstraints.HORIZONTAL; // 버튼이 수평으로 늘어나도록 설정
-        detail.insets = new Insets(10, 100, 10, 100); // 버튼 간 여백
+        detail.insets = new Insets(5, 10, 5, 10); // 버튼 간 여백 (좌, 상, 우, 하)
+        detail.weightx = 1.0; // 가로 공간 균등 분배
+        detail.weighty = 1.0; // 세로 공간 균등 분배
         
         LectureExcelReadData readObject = new LectureExcelReadData();
         LectureExcelSaveData saveObject = new LectureExcelSaveData();
@@ -41,6 +46,7 @@ public class StudentServicesUi extends JFrame {
         JLabel lectureLabel = new JLabel("수강할 강좌를 고르세요(강좌명/ 담당 교수)");
         detail.gridx = 0;
         detail.gridy = 0;
+        detail.gridwidth = 2;
         add(lectureLabel, detail);
         
         JComboBox<String> lectureComboBox = new JComboBox<>();
@@ -49,14 +55,15 @@ public class StudentServicesUi extends JFrame {
                 lectureComboBox.addItem(i);
             }
         }
-        detail.gridx = 1;
-        detail.gridy = 0;
+        detail.gridx = 0;
+        detail.gridy = 1;
+        detail.gridwidth = 1;
         add(lectureComboBox, detail);
         
         // 수강신청 버튼
         JButton enrollButton = new JButton("수강신청");
-        detail.gridx = 2; // 첫 번째 열
-        detail.gridy = 0; // 첫 번째 행
+        detail.gridx = 1; // 첫 번째 열
+        detail.gridy = 1; // 첫 번째 행
         
         enrollButton.addActionListener(new ActionListener() {
             @Override
@@ -96,13 +103,13 @@ public class StudentServicesUi extends JFrame {
             }
         });
         detail.gridx = 0; 
-        detail.gridy = 1; // 두 번째 행
+        detail.gridy = 2; // 두 번째 행
         add(gradesButton, detail);
         
         // 수강료 확인 버튼
         JButton getBillButton = new JButton("수강료 확인하기");
         detail.gridx = 1;
-        detail.gridy = 1;
+        detail.gridy = 2;
         
         getBillButton.addActionListener(new ActionListener() {
             @Override
@@ -121,6 +128,16 @@ public class StudentServicesUi extends JFrame {
         });
         add(getBillButton, detail);
         
+        JButton modifyUser = new JButton("회원 정보 변경");
+         modifyUser.addActionListener(new ActionListener() {
+            @Override
+             public void actionPerformed(ActionEvent e) {
+                 new ModifyUserUi().setVisible(true);
+             }
+        });
+        detail.gridx = 0;
+        detail.gridy = 3;
+        add(modifyUser, detail);
         setVisible(true);
     }
     

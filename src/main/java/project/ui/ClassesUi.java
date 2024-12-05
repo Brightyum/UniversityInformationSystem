@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package project.classer;
+package project.ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,8 +10,11 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-//import Login.ModifyUserUi;
+import Login.ModifyUserUi;
+import project.classer.ClassBilling;
+import project.classer.ClassLecture;
+import project.classer.ClassModify;
+import project.classer.ClassRegister;
 
 /**
  *

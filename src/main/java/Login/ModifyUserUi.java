@@ -16,7 +16,7 @@ public class ModifyUserUi extends JFrame {
     public ModifyUserUi() {
         setTitle("회원 정보 변경");
         setSize(500, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // UI 구성

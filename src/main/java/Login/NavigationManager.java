@@ -1,10 +1,10 @@
 package Login;
 
-import CourseManagement.ProfessorServicesUi;
-import CourseManagement.StudentServicesUi;
+import project.ui.ProfessorServicesUi;
+import project.ui.StudentServicesUi;
 import javax.swing.*;
 import project.ui.AcademicUi;
-import project.classer.ClassesUi;
+import project.ui.ClassesUi;
 import java.io.IOException;
 
 public class NavigationManager {

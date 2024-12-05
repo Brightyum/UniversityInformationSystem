@@ -1,5 +1,7 @@
-package CourseManagement;
+package project.ui;
 
+import CourseManagement.AttendanceUi;
+import CourseManagement.StudentListUi;
 import project.professor.ProfessorServiceUi; // ProfessorServiceUi를 임포트합니다.
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
