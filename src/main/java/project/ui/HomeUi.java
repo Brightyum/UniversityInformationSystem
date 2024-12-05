@@ -45,7 +45,7 @@ public class HomeUi extends JFrame {
         detail.weighty = 0.1;
         add(pwdLabel, detail); // 레이블 추가
         
-        JTextField pwd = new JTextField(7); // 비밀번호 입력 필드
+        JPasswordField pwd = new JPasswordField(7); // 비밀번호 입력 필드
         detail.gridx = 1;
         detail.gridy = 1;
         detail.weightx = 0.7;

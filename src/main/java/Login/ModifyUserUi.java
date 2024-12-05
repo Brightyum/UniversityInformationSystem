@@ -25,7 +25,7 @@ public class ModifyUserUi extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel roleLabel = new JLabel("역할:");
+        JLabel roleLabel = new JLabel("관할:");
         roleComboBox = new JComboBox<>(RoleConfig.getRoles());
 
         JLabel idLabel = new JLabel("ID:");
