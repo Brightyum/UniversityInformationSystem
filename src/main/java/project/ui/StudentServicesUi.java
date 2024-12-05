@@ -1,7 +1,9 @@
-package CourseManagement;
+package project.ui;
 
 import CourseManagement.GradesUi;
 import CourseManagement.EnrollmentUi;
+import CourseManagement.GradesUi;
+import CourseManagement.StudentBill;
 import Login.ModifyUserUi;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
