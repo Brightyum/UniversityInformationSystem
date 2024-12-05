@@ -21,7 +21,8 @@ public class LectureExcelReadData {
     private int count, startIndex, targetIndex,
             classIndex, studentIndex, minStudentIndex,studentNameIndex,
             nextRow, maxStudentIndex, professorName, studentLectureIndex, 
-            maxCredit, creditIndex, classNumIndex, confirmLectureIndex, nameIndex;
+            maxCredit, creditIndex, classNumIndex, confirmLectureIndex, nameIndex,
+            scoreIndex, departmentIndex;
     private String lectureFilePath, studentFilePath;
     
     public LectureExcelReadData(){
@@ -33,10 +34,11 @@ public class LectureExcelReadData {
         studentIndex = 9;
         minStudentIndex = 7;
         studentNameIndex = 10;
-        maxStudentIndex = 8;
+        maxStudentIndex = scoreIndex = 8;
         professorName = confirmLectureIndex = 6;
         maxCredit = 18;
         creditIndex = 4;
+        departmentIndex = 2;
     }
     
     public CopyOnWriteArrayList<CopyOnWriteArrayList<Object>> readLectureStaffExcel() throws IOException {
@@ -251,6 +253,162 @@ public class LectureExcelReadData {
             }
         }
         return data;
+    }
+    
+    public Map<String, String> getScore(String name) throws IOException {
+        Map<String, String> data = new HashMap<>();
+        
+        FileInputStream file = new FileInputStream(studentFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (int rowIndex = nextRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            if (row != null) {
+                Cell nameCell = row.getCell(nameIndex);
+                
+                if (nameCell != null && nameCell.toString().equals(name)) {
+                    Cell lectureScoreCell = row.getCell(scoreIndex);
+                    if (lectureScoreCell != null) {
+                        String[] currentValue = lectureScoreCell.toString().split(",");
+
+                        for (String i : currentValue) {
+                            String[] map = i.split("/");
+                            data.put(map[0], map[1]);
+                        }
+                    } else {
+                        return null;
+                    }
+                    break;
+                }
+            }
+        }
+        return data;
+    }
+    
+    public Map<String, List<String>> getLectureStudent(String name, String select) throws IOException {
+        Map<String, List<String>> data = new HashMap<>();
+        String[] currentValue = {};
+
+        // 강좌 파일 읽기
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+
+        // 강좌에서 교수 이름을 기준으로 학생 명단 추출
+        for (Row row : sheet) {
+            Cell lectureCell = row.getCell(classIndex);
+            if (lectureCell != null && lectureCell.toString().equals(select)) {
+                Cell professorCell = row.getCell(professorName);
+                if (professorCell != null && professorCell.toString().equals(name)) {
+                    Cell studentsCell = row.getCell(studentNameIndex);
+                    if (studentsCell != null) {
+                        currentValue = studentsCell.toString().split(",");
+                    }
+                    break;
+                }
+            }
+            
+            
+        }
+        file.close();
+
+        // 학생 파일 읽기
+        FileInputStream studentFile = new FileInputStream(studentFilePath);
+        Workbook studentWorkbook = new XSSFWorkbook(studentFile);
+        Sheet studentSheet = studentWorkbook.getSheetAt(startIndex);
+
+        // 학생 명단과 매칭
+        for (int rowIndex = nextRow; rowIndex <= studentSheet.getLastRowNum(); rowIndex++) {
+            Row row = studentSheet.getRow(rowIndex);
+            if (row != null) {
+                Cell studentCell = row.getCell(nameIndex);
+                if (studentCell != null) {
+                    for (String i : currentValue) {
+                        if (studentCell.toString().equals(i)) {
+                            Cell departmentCell = row.getCell(departmentIndex);
+                            String department = departmentCell.toString();
+                            String studentName = studentCell.toString();
+
+                            // 동일 학과의 학생을 리스트로 저장
+                            data.computeIfAbsent(department, k -> new ArrayList<>()).add(studentName);
+                        }
+                    }
+                }
+            }
+        }
+        studentFile.close();
+        return data;
+    }
+    
+    public Map<String, List<String>> getStudentInformation(String name, String select) throws IOException {
+        Map<String, List<String>> data = new HashMap<>();
+        String[] currentStudents = {};
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (Row row : sheet) {
+            Cell lectureCell = row.getCell(classIndex);
+            Cell professorCell = row.getCell(professorName);
+            if (lectureCell != null && professorCell != null 
+               && lectureCell.toString().equals(select) && professorCell.toString().equals(name)) {
+               Cell studentsCell = row.getCell(studentNameIndex);
+               if (studentsCell != null) {
+                   currentStudents = studentsCell.toString().split(",");
+               }
+               break;
+            }
+        }
+        file.close();
+        
+        FileInputStream studentFile = new FileInputStream(studentFilePath);
+        Workbook studentWorkbook = new XSSFWorkbook(studentFile);
+        Sheet studentSheet = studentWorkbook.getSheetAt(startIndex);
+        
+        for (int rowIndex = nextRow; rowIndex <= studentSheet.getLastRowNum(); rowIndex++) {
+            Row row = studentSheet.getRow(rowIndex);
+            if (row != null) {
+                Cell nameCell = row.getCell(nameIndex);
+                if (nameCell != null) {
+                    for (String i : currentStudents) {
+                        if (nameCell.toString().equals(i)) {
+                            Cell numCell = row.getCell(startIndex);
+                            Cell creditCell = row.getCell(creditIndex);
+                            
+                            if (numCell != null && creditCell != null) {
+                                // numCell과 creditCell 값을 리스트로 저장
+                                List<String> values = new ArrayList<>();
+                                values.add(numCell.toString());
+                                values.add(creditCell.toString());
+
+                                // i를 키로 하고 리스트를 값으로 설정
+                                data.put(i, values);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        studentFile.close();
+        return data;
+    }
+    
+    public CopyOnWriteArrayList<String> lectureName(String name) throws IOException {
+        CopyOnWriteArrayList<String> lectureName = new CopyOnWriteArrayList<>();
+        
+        FileInputStream file = new FileInputStream(lectureFilePath);
+        Workbook workbook = new XSSFWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(startIndex);
+        
+        for (Row row : sheet) {
+            Cell professorCell = row.getCell(professorName);
+            if (professorCell != null && professorCell.toString().equals(name)) {
+                Cell lectureCell = row.getCell(classIndex);
+                lectureName.add(lectureCell.toString());
+            }
+        }
+        return lectureName;
     }
 
     
