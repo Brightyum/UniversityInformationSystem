@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -63,23 +64,31 @@ public class HomeUi extends JFrame {
         
         // 버튼 클릭 이벤트 처리
         figureId.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String enteredId = id.getText().trim();
-                String enteredPwd = pwd.getText().trim();
-                
-                // 로그인 검증
-                String role = LoginHandler.checkLogin(enteredId, enteredPwd);
-                if (role != null) {
-                    dispose(); // 현재 창 닫기
-                    try {
-                        NavigationManager.navigate(role); // 역할에 따라 새 창 열기
-                    } catch (IOException ex) {
-                        Logger.getLogger(HomeUi.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String enteredId = id.getText().trim();
+            String enteredPwd = pwd.getText().trim();
+
+            // 로그인 검증
+            Map<String, String> loginResult = LoginHandler.checkLogin(enteredId, enteredPwd);
+            if (loginResult != null) {
+                String role = loginResult.get("role");
+                String name = loginResult.get("name"); // 이름 데이터 (없을 경우 null)
+
+                dispose(); // 현재 창 닫기
+
+                try {
+                    // 역할에 따라 새 창 열기 (NavigationManager 수정 필요 시 반영)
+                    NavigationManager.navigate(role, name); // 역할과 이름 전달
+                } catch (IOException ex) {
+                    Logger.getLogger(HomeUi.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            } else {
+                JOptionPane.showMessageDialog(null, "로그인 실패! 아이디 또는 비밀번호를 확인하세요.", "실패", JOptionPane.ERROR_MESSAGE);
             }
-        });
+        }
+    });
+
         
         setVisible(true); // 창 보이게
     }

@@ -8,12 +8,20 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.awt.Insets;
 import Login.ModifyUserUi;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import project.excel.LectureExcelReadData;
 
 public class ProfessorServicesUi extends JFrame {
-    public ProfessorServicesUi() {
+    private String select;
+    public ProfessorServicesUi(String name) throws IOException {
         setTitle("교수 창");
         setSize(400, 400); 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         
         setLayout(new GridBagLayout());
@@ -21,25 +29,62 @@ public class ProfessorServicesUi extends JFrame {
         detail.fill = GridBagConstraints.HORIZONTAL;
         detail.insets = new Insets(10, 100, 10, 100); 
         
-        JButton studentListButton = new JButton("강좌별 학생 명단");
+        LectureExcelReadData readObject = new LectureExcelReadData();
+        
+        JLabel lectureLabel = new JLabel("강의를 선택하세요.");
+        detail.gridx = 0;
+        detail.gridy = 0;
+        add(lectureLabel, detail);
+        
+        JComboBox<String> professorComboBox = new JComboBox<>();
+        detail.gridx = 1;
+        detail.gridy = 0;
+        
+        //String name = "염승욱"; //매개변수
+        CopyOnWriteArrayList<String> lectureName = readObject.lectureName(name);
+       
+        for (String lecture : lectureName) {
+            professorComboBox.addItem(lecture);
+        }
+        
+        add(professorComboBox, detail);
+        
+        JButton studentListButton = new JButton("출석부 조회");
         studentListButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new StudentListUi(); 
+                try {
+                    select = (String)professorComboBox.getSelectedItem();
+                    Map<String, List<String>> data = readObject.getStudentInformation(name, select);
+                    System.out.println(data);
+                    StudentListUi object = new StudentListUi(select, data);
+                    
+                } catch (IOException ex) {
+                    Logger.getLogger(ProfessorServicesUi.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
         detail.gridx = 0;
-        detail.gridy = 0;
+        detail.gridy = 1;
         add(studentListButton, detail);
         
-        JButton attendanceButton = new JButton("출석부 조회");
+        JButton attendanceButton = new JButton("강좌별 학생 명단 조회");
         attendanceButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new AttendanceUi(); 
+                try {
+                    //String name = "염승욱";
+                    select = (String)professorComboBox.getSelectedItem();
+                    Map<String, List<String>> data = readObject.getLectureStudent(name, select);
+                    AttendanceUi object = new AttendanceUi(data, select); 
+                    object.setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(ProfessorServicesUi.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
             }
         });
-        detail.gridx = 0;
+        detail.gridx = 1;
         detail.gridy = 1;
         add(attendanceButton, detail);
         
@@ -66,9 +111,5 @@ public class ProfessorServicesUi extends JFrame {
         add(scoreManagementButton, detail);
 
         setVisible(true);
-    }
-    
-    public static void main(String[] args) {
-        new ProfessorServicesUi(); 
     }
 }
