@@ -4,7 +4,7 @@ import CourseManagement.ProfessorServicesUi;
 import CourseManagement.StudentServicesUi;
 import javax.swing.*;
 import project.ui.AcademicUi;
-import project.ui.ClassesUi;
+import project.classer.*;
 
 public class NavigationManager {
 
