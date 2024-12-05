@@ -91,9 +91,6 @@ public class StudentExcelHandler {
             }
 
             Cell scoreCell = row.getCell(COLUMN_SCORES, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-            if (scoreCell.getCellType() != CellType.STRING) {
-                scoreCell.setCellType(CellType.STRING);
-            }
 
             String existingScores = getCellValue(scoreCell);
 
@@ -111,7 +108,7 @@ public class StudentExcelHandler {
         });
     }
 
-    // 성적 검증 및 변환 메서드 추가
+    // 성적 검증 및 변환 메서드 (문자 성적 -> 숫자 성적)
     private Double convertGradeToNumeric(String grade) {
         if (grade == null) {
             return null;
@@ -135,7 +132,7 @@ public class StudentExcelHandler {
     // 기존 성적 파싱 메서드 수정
     private Map<String, Double> parseScores(String scores) {
         Map<String, Double> scoreMap = new HashMap<>();
-        if (scores == null || scores.isEmpty()) {
+        if (scores == null || scores.trim().isEmpty()) {
             return scoreMap;
         }
 
@@ -146,34 +143,60 @@ public class StudentExcelHandler {
                 String course = parts[0].trim();
                 String gradeStr = parts[1].trim();
 
-                // 유효한 성적인지 확인
                 Double numericGrade = null;
 
                 try {
-                    numericGrade = Double.parseDouble(gradeStr);
-                    if (!isValidNumericGrade(numericGrade)) {
-                        numericGrade = null; // 유효하지 않은 숫자 성적
+                    // 숫자 성적 처리
+                    double rawNumericGrade = Double.parseDouble(gradeStr);
+
+                    if (isValidNumericGrade(rawNumericGrade)) {
+                        // 이미 4.0, 3.0 등의 숫자 성적인 경우 그대로 사용
+                        numericGrade = rawNumericGrade;
+                    } else if (rawNumericGrade >= 0 && rawNumericGrade <= 100) {
+                        // 0~100 사이의 점수인 경우 문자 성적으로 변환
+                        String letterGrade = convertNumericScoreToLetter(rawNumericGrade);
+                        numericGrade = convertGradeToNumeric(letterGrade);
+                    } else {
+                        // 유효하지 않은 성적
+                        numericGrade = null;
                     }
                 } catch (NumberFormatException e) {
-                    // 숫자가 아닌 경우
+                    // 숫자로 변환할 수 없는 경우 문자 성적으로 처리
                     numericGrade = convertGradeToNumeric(gradeStr);
                 }
 
                 if (numericGrade != null) {
                     scoreMap.put(course, numericGrade);
                 }
-                // 유효하지 않은 성적은 무시하여 제거
             }
         }
         return scoreMap;
     }
 
-    // 유효한 숫자 성적인지 확인하는 메서드 추가
-    private boolean isValidNumericGrade(Double grade) {
-        return grade.equals(4.0) || grade.equals(3.0) || grade.equals(2.0) || grade.equals(1.0) || grade.equals(0.0);
+    // 숫자 성적(0~100)을 문자 성적(A~F)으로 변환하는 메서드 추가
+    private String convertNumericScoreToLetter(double score) {
+        if (score >= 90 && score <= 100) {
+            return "A";
+        } else if (score >= 80 && score < 90) {
+            return "B";
+        } else if (score >= 70 && score < 80) {
+            return "C";
+        } else if (score >= 60 && score < 70) {
+            return "D";
+        } else if (score >= 0 && score < 60) {
+            return "F";
+        } else {
+            return null; // 유효하지 않은 점수
+        }
     }
 
-    // 성적 정보를 문자열로 변환하는 메서드
+    // 유효한 숫자 성적인지 확인하는 메서드 수정
+    private boolean isValidNumericGrade(Double grade) {
+        return grade.equals(4.0) || grade.equals(3.0) || grade.equals(2.0)
+                || grade.equals(1.0) || grade.equals(0.0);
+    }
+
+    // 성적 정보를 문자열로 변환하는 메서드 (숫자 성적으로 저장)
     private String scoresToString(Map<String, Double> scoreMap) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, Double> entry : scoreMap.entrySet()) {
@@ -184,6 +207,8 @@ public class StudentExcelHandler {
         }
         return sb.toString();
     }
+
+    // 나머지 메서드들은 동일
 
     private boolean modifySheet(SheetOperation operation) {
         Workbook workbook = null;
@@ -297,7 +322,9 @@ public class StudentExcelHandler {
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getDateCellValue().toString();
                     } else {
-                        return String.valueOf((long) cell.getNumericCellValue()).trim();
+                        // 소수점 없는 정수로 변환
+                        long numericValue = (long) cell.getNumericCellValue();
+                        return String.valueOf(numericValue).trim();
                     }
                 case BOOLEAN:
                     return String.valueOf(cell.getBooleanCellValue()).trim();
