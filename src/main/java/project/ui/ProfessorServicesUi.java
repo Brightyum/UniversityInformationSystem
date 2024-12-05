@@ -20,7 +20,7 @@ import project.excel.LectureExcelReadData;
 
 public class ProfessorServicesUi extends JFrame {
     private String select;
-    public ProfessorServicesUi() throws IOException {
+    public ProfessorServicesUi(String name) throws IOException {
         setTitle("교수 창");
         setSize(400, 400); 
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -42,7 +42,7 @@ public class ProfessorServicesUi extends JFrame {
         detail.gridx = 1;
         detail.gridy = 0;
         
-        String name = "염승욱"; //매개변수
+        //String name = "염승욱"; //매개변수
         CopyOnWriteArrayList<String> lectureName = readObject.lectureName(name);
        
         for (String lecture : lectureName) {
@@ -75,7 +75,7 @@ public class ProfessorServicesUi extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String name = "염승욱";
+                    //String name = "염승욱";
                     select = (String)professorComboBox.getSelectedItem();
                     Map<String, List<String>> data = readObject.getLectureStudent(name, select);
                     AttendanceUi object = new AttendanceUi(data, select); 
@@ -113,9 +113,5 @@ public class ProfessorServicesUi extends JFrame {
         add(scoreManagementButton, detail);
 
         setVisible(true);
-    }
-    
-    public static void main(String[] args) throws IOException {
-        new ProfessorServicesUi(); 
     }
 }

@@ -17,7 +17,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static javax.swing.JOptionPane.showMessageDialog;
-import javax.swing.table.DefaultTableModel;
 import project.excel.*;
 
 public class StudentServicesUi extends JFrame {
@@ -25,7 +24,7 @@ public class StudentServicesUi extends JFrame {
     private String select;
     private boolean check;
 
-    public StudentServicesUi() throws IOException {
+    public StudentServicesUi(String name) throws IOException {
         setTitle("학생 창");
         setSize(500, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -69,7 +68,7 @@ public class StudentServicesUi extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String name = "염승욱";
+                    //String name = "염승욱";
                     select = (String) lectureComboBox.getSelectedItem();
                     check = saveObject.addStudent(name, select);
                     System.out.println(check);
@@ -92,7 +91,7 @@ public class StudentServicesUi extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String name = "염승욱";  // 로그인 했을때 데이터 받아오기
+                    //String name = "염승욱";  // 로그인 했을때 데이터 받아오기
                     Map<String, String> scoreData = readObject.getScore(name);
                     GradesUi object = new GradesUi(scoreData); // 성적 확인 창 열기
                     object.setVisible(true);
@@ -115,7 +114,7 @@ public class StudentServicesUi extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String name = "염승욱"; // 학생 이름
+                    //String name = "염승욱"; // 학생 이름
                     CopyOnWriteArrayList<String> data = readObject.getConfirmLecture(name); // 데이터를 가져옴
 
                     StudentBill object = new StudentBill(name, data);
@@ -139,9 +138,5 @@ public class StudentServicesUi extends JFrame {
         detail.gridy = 3;
         add(modifyUser, detail);
         setVisible(true);
-    }
-    
-    public static void main(String[] args) throws IOException {
-        new StudentServicesUi();
     }
 }
