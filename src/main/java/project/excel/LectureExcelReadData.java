@@ -115,12 +115,13 @@ public class LectureExcelReadData {
                 Cell studentCell = row.getCell(studentIndex);
                 Cell minStudentCell = row.getCell(minStudentIndex);
                 Cell classNumCell = row.getCell(classNumIndex);
-                if (studentCell != null && minStudentCell != null && classNumCell.toString().equals("0")) {
+                
+                if (studentCell != null && minStudentCell != null && (classNumCell.toString().equals("0") || (classNumCell.getNumericCellValue() == 0))) {
                     double studentValue = parseCellValue(studentCell);
                     double minStudentValue = parseCellValue(minStudentCell);
 
                     // 비교 조건
-                    if (studentValue > minStudentValue) {
+                    if (studentValue >= minStudentValue) {
                         Cell cell = row.getCell(classIndex);
                         if (cell != null) {
                             data.add(cell.toString());
@@ -159,7 +160,7 @@ public class LectureExcelReadData {
         file.close();
         return data;
     }
-    public CopyOnWriteArrayList<String> getPossibleLecture() throws IOException {
+    public CopyOnWriteArrayList<String> getPossibleLecture(String name) throws IOException {
         CopyOnWriteArrayList<String> data = new CopyOnWriteArrayList<>();
 
         // 첫 번째 엑셀 파일 읽기
@@ -177,19 +178,23 @@ public class LectureExcelReadData {
         for (int rowIndex = 1; rowIndex <= studentSheet.getLastRowNum(); rowIndex++) { // 첫 번째 행 건너뜀
             Row row = studentSheet.getRow(rowIndex);
             if (row != null) {
-                Cell lectureCell = row.getCell(studentLectureIndex);
-                Cell creditCell = row.getCell(creditIndex);
-                int currentCredit = 0;
-                
-                if (creditCell != null && creditCell.getNumericCellValue() >= maxCredit) {
-                    data = null;
-                    return data;
-                }
-                
-                if (lectureCell != null) {
-                    String currentLecture = lectureCell.toString();
-                    String[] checkLecture = currentLecture.split(",");
-                    existingLectures.addAll(Arrays.asList(checkLecture));
+                Cell nameCell = row.getCell(nameIndex);
+                if (nameCell != null && nameCell.toString().equals(name)) {
+                    Cell lectureCell = row.getCell(studentLectureIndex);
+                    Cell creditCell = row.getCell(creditIndex);
+                    int currentCredit = 0;
+
+                    if (creditCell != null && creditCell.getNumericCellValue() >= maxCredit) {
+                        System.out.println(creditCell.toString());
+                        data = null;
+                        return data;
+                    }
+
+                    if (lectureCell != null) {
+                        String currentLecture = lectureCell.toString();
+                        String[] checkLecture = currentLecture.split(",");
+                        existingLectures.addAll(Arrays.asList(checkLecture));
+                    }
                 }
             }
         }

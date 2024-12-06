@@ -15,7 +15,7 @@ public class PasswordChanger {
         int passwordColumn = RoleConfig.getPasswordColumn(role);
 
         if (filePath == null) {
-            throw new IllegalArgumentException("잘못된 역할입니다.");
+            throw new IllegalArgumentException("잘못된 관할입니다.");
         }
 
         FileInputStream fis = new FileInputStream(filePath);
