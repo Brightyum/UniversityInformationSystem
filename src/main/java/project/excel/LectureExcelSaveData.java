@@ -254,7 +254,8 @@ public class LectureExcelSaveData {
                                     System.err.println("Unsupported cell type for credit: " + creditCell.getCellType());
                                     break;
                             }
-                        }
+                        } 
+                        
                         break;
                     }
                 }
@@ -339,14 +340,20 @@ public class LectureExcelSaveData {
         for (int rowIndex = nextRow; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
             Row row = sheet.getRow(rowIndex);
             if (row != null) {
-                Cell lectureNumCell = row.getCell(lectureNumIndex);
-                Cell studentNameCell = row.getCell(studentNamesIndex);
-                
-                if (lectureNumCell != null && lectureNumCell.toString().equals("0")) {
-                    lectureNumCell.setCellValue(plusCount);
-                }
-                if (studentNameCell != null) {
-                    studentName = studentNameCell.toString().split(",");
+                Cell selectLectureCell = row.getCell(classIndex);
+                if (selectLectureCell != null && selectLectureCell.toString().equals(select)) {
+                    System.out.println(selectLectureCell.toString());
+                    Cell lectureNumCell = row.getCell(lectureNumIndex);
+                    Cell studentNameCell = row.getCell(studentNamesIndex);
+
+                    if (lectureNumCell != null && lectureNumCell.toString().equals("0")) {
+                        lectureNumCell.setCellValue(plusCount);
+                    } else {
+                        System.out.println(lectureNumCell.toString());
+                    }
+                    if (studentNameCell != null) {
+                        studentName = studentNameCell.toString().split(",");
+                    }
                 }
             }
         }
@@ -362,6 +369,16 @@ public class LectureExcelSaveData {
         Sheet studentSheet = studentWorkbook.getSheetAt(rowIndex);
         
         for (Row row : studentSheet) {
+            Cell lectureConfirmCell = row.getCell(confirmLectureIndex);
+            if (lectureConfirmCell != null) {
+                String[] checkValue = lectureConfirmCell.toString().split(",");
+                for (String i : checkValue) {
+                    if (i.equals(select)) {
+                        System.out.println(i);
+                        return check;
+                    }
+                }
+            }
             Cell studentNameCell = row.getCell(studentNameIndex);
             if (studentNameCell != null ) {
                 String cellValue = studentNameCell.getStringCellValue();

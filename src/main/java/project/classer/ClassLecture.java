@@ -50,8 +50,13 @@ public class ClassLecture extends JFrame {
             comboBox.setBounds(100, 50, 200, 30);
             add(comboBox);
             
-            JComboBox<String> professorComboBox = new JComboBox<>();
+            JLabel professorLabel = new JLabel("교수님을 선택하세요");
             detail.gridx = 0;
+            detail.gridy = 1;
+            add(professorLabel, detail);
+            
+            JComboBox<String> professorComboBox = new JComboBox<>();
+            detail.gridx = 1;
             detail.gridy = 1;
             add(professorComboBox, detail);
             

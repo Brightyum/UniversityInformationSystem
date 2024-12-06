@@ -1,8 +1,6 @@
 package project.ui;
 
 import CourseManagement.GradesUi;
-import CourseManagement.EnrollmentUi;
-import CourseManagement.GradesUi;
 import CourseManagement.StudentBill;
 import Login.ModifyUserUi;
 import java.awt.GridBagConstraints;
@@ -40,7 +38,7 @@ public class StudentServicesUi extends JFrame {
         LectureExcelReadData readObject = new LectureExcelReadData();
         LectureExcelSaveData saveObject = new LectureExcelSaveData();
         
-        lectureData = readObject.getPossibleLecture();
+        lectureData = readObject.getPossibleLecture(name);
         
         JLabel lectureLabel = new JLabel("수강할 강좌를 고르세요(강좌명/ 담당 교수)");
         detail.gridx = 0;
