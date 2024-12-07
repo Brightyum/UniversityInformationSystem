@@ -104,7 +104,4 @@ public class StudentUi extends JFrame {
         JOptionPane.showMessageDialog(this, success ? successMsg : "해당 학생 정보를 찾을 수 없습니다.");
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(StudentUi::new);
-    }
 }

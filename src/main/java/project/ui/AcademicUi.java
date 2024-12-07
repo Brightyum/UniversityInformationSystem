@@ -5,6 +5,9 @@ import project.student.StudentUi;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import project.login.ModifyUserUi;
 
 public class AcademicUi extends JFrame {
     public AcademicUi() {
@@ -35,11 +38,18 @@ public class AcademicUi extends JFrame {
         detail.gridx = 0;
         detail.gridy = 1;
         add(manageProfessorButton, detail);
+        
+        JButton modifyUser = new JButton("회원 정보 변경");
+        modifyUser.addActionListener(new ActionListener() {
+            @Override
+             public void actionPerformed(ActionEvent e) {
+                 new ModifyUserUi().setVisible(true);
 
+             }
+        });
+        detail.gridx = 0;
+        detail.gridy = 2;
+        add(modifyUser, detail);
         setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(AcademicUi::new);
     }
 }

@@ -104,8 +104,4 @@ public class ProfessorUi extends JFrame {
         );
         JOptionPane.showMessageDialog(this, result != null ? "교수 정보: " + result : "해당 교수 정보를 찾을 수 없습니다.");
     }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ProfessorUi::new);
-    }
 }
