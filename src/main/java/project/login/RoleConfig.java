@@ -16,7 +16,7 @@ public class RoleConfig {
         filePaths.put("수강 관리자", "LectureStaff_data.xlsx");
 
         idColumns.put("학생", 0);
-        passwordColumns.put("학생", 6);
+        passwordColumns.put("학생", 9);
 
         idColumns.put("교수", 0);
         passwordColumns.put("교수", 5);
