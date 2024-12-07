@@ -125,11 +125,11 @@ public class LoginHandler {
                     }
 
                     // 입력된 ID와 비밀번호를 비교
-                    if (storedId.equals(id) && (savedPwd.equals(password) || storedPwd.equals(password))) {
-                        if (!savedPwd.equals(password)) {
-                            // 새 비밀번호 저장
-                            saveNewPassword(fileName, row, savedPasswordIndex, password);
-                        }
+                    if (storedId.equals(id) && savedPwd.equals(password)) {
+                    // 비밀번호를 변경한 경우 새 비밀번호만 사용하도록 설정
+                    if (!savedPwd.equals(password)) {
+                        saveNewPassword(fileName, row, savedPasswordIndex, password);
+                    }
 
                         // 성공 시 결과에 데이터 저장
                         result.put("success", true);
