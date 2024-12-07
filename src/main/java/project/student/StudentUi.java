@@ -15,7 +15,7 @@ public class StudentUi extends JFrame {
         super("학생 정보 관리 창");
         studentExcelHandler = new StudentExcelHandler();
         setSize(400, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 
