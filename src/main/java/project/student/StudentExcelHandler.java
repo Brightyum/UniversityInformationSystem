@@ -13,45 +13,45 @@ public class StudentExcelHandler {
     private static final Logger logger = Logger.getLogger(StudentExcelHandler.class.getName());
 
     // 열 인덱스 상수 선언
-    private static final int COLUMN_STUDENT_NUMBER = 0;       // 학번
-    private static final int COLUMN_NAME = 1;                 // 이름
-    private static final int COLUMN_DEPARTMENT = 2;           // 학과
-    private static final int COLUMN_SSN = 3;                  // 주민번호
+    private static final int COLUMN_STUDENT_NUMBER = 0;       // 학번 (int -> long으로 처리)
+    private static final int COLUMN_NAME = 1;                 // 이름 (문자열)
+    private static final int COLUMN_DEPARTMENT = 2;           // 학과 (문자열)
+    private static final int COLUMN_SSN = 3;                  // 주민번호 (int -> long으로 처리)
     private static final int COLUMN_CREDITS = 4;              // 학점
     private static final int COLUMN_REGISTERED_COURSES = 5;   // 등록 강좌
     private static final int COLUMN_TAKEN_COURSES = 6;        // 수강된 강좌
     private static final int COLUMN_TUITION = 7;              // 수강료
     private static final int COLUMN_SCORES = 8;               // 등록 성적
 
-    public boolean registerStudent(String studentNumber, String studentName, String department, String ssn) {
+    public boolean registerStudent(String studentNumberStr, String studentName, String department, String ssnStr) {
         return modifySheet(sheet -> {
             Row row = createNewRow(sheet);
-            setCellValues(row, studentNumber, studentName, department, ssn);
-            logger.info("학생 등록 완료: " + studentNumber + ", " + studentName);
+            setCellValues(row, studentNumberStr, studentName, department, ssnStr);
+            logger.info("학생 등록 완료: " + studentNumberStr + ", " + studentName);
         });
     }
 
-    public boolean updateStudent(String studentNumber, String studentName, String department, String ssn) {
+    public boolean updateStudent(String studentNumberStr, String studentName, String department, String ssnStr) {
         return modifySheet(sheet -> {
-            Row row = findRowByStudentNumber(sheet, studentNumber);
+            Row row = findRowByStudentNumber(sheet, studentNumberStr);
             if (row != null) {
-                setCellValues(row, studentNumber, studentName, department, ssn);
-                logger.info("학생 정보 업데이트 완료: " + studentNumber + ", " + studentName);
+                setCellValues(row, studentNumberStr, studentName, department, ssnStr);
+                logger.info("학생 정보 업데이트 완료: " + studentNumberStr + ", " + studentName);
             } else {
-                logger.warning("업데이트 대상 학생을 찾을 수 없음: " + studentNumber);
+                logger.warning("업데이트 대상 학생을 찾을 수 없음: " + studentNumberStr);
                 throw new IllegalStateException("학생을 찾을 수 없습니다.");
             }
         });
     }
 
-    public boolean deleteStudent(String studentNumber) {
+    public boolean deleteStudent(String studentNumberStr) {
         return modifySheet(sheet -> {
-            Row row = findRowByStudentNumber(sheet, studentNumber);
+            Row row = findRowByStudentNumber(sheet, studentNumberStr);
             if (row != null) {
                 removeRow(sheet, row);
-                logger.info("학생 삭제 완료: " + studentNumber);
+                logger.info("학생 삭제 완료: " + studentNumberStr);
             } else {
-                logger.warning("삭제 대상 학생을 찾을 수 없음: " + studentNumber);
+                logger.warning("삭제 대상 학생을 찾을 수 없음: " + studentNumberStr);
                 throw new IllegalStateException("학생을 찾을 수 없습니다.");
             }
         });
@@ -77,6 +77,7 @@ public class StudentExcelHandler {
     }
 
     public boolean addOrUpdateScore(String studentNumber, String courseName, String grade) {
+        // 성적 검증 및 변환
         Double numericGrade = convertGradeToNumeric(grade);
         if (numericGrade == null) {
             return false; // 잘못된 성적 입력
@@ -93,9 +94,13 @@ public class StudentExcelHandler {
 
             String existingScores = getCellValue(scoreCell);
 
+            // 기존 성적 파싱
             Map<String, Double> scoreMap = parseScores(existingScores);
+
+            // 새로운 성적으로 업데이트
             scoreMap.put(courseName, numericGrade);
 
+            // 다시 문자열로 변환하여 저장
             String updatedScores = scoresToString(scoreMap);
             scoreCell.setCellValue(updatedScores);
 
@@ -256,36 +261,61 @@ public class StudentExcelHandler {
         return sheet.createRow(lastRowNum + 1);
     }
 
-    // 학생 번호, 주민번호를 int로 파싱 후 숫자형 셀로 저장하도록 수정
-    private void setCellValues(Row row, String studentNumber, String studentName, String department, String ssn) {
-        int parsedStudentNumber;
-        int parsedSSN;
-        try {
-            parsedStudentNumber = Integer.parseInt(studentNumber.trim());
-        } catch (NumberFormatException e) {
-            logger.warning("학생 번호를 숫자로 변환할 수 없음: " + studentNumber + " 기본값 0 사용");
-            parsedStudentNumber = 0;
-        }
+    private void setCellValues(Row row, String studentNumberStr, String studentName, String department, String ssnStr) {
+        long studentNumber = parseLongOrWarn(studentNumberStr, "학생번호");
+        long ssn = parseLongOrWarn(ssnStr, "주민번호");
 
-        try {
-            parsedSSN = Integer.parseInt(ssn.trim());
-        } catch (NumberFormatException e) {
-            logger.warning("주민번호를 숫자로 변환할 수 없음: " + ssn + " 기본값 0 사용");
-            parsedSSN = 0;
-        }
+        Cell studentNumberCell = row.createCell(COLUMN_STUDENT_NUMBER, CellType.NUMERIC);
+        studentNumberCell.setCellValue(studentNumber);
 
-        row.createCell(COLUMN_STUDENT_NUMBER, CellType.NUMERIC).setCellValue(parsedStudentNumber);
-        row.createCell(COLUMN_NAME, CellType.STRING).setCellValue(studentName);
-        row.createCell(COLUMN_DEPARTMENT, CellType.STRING).setCellValue(department);
-        row.createCell(COLUMN_SSN, CellType.NUMERIC).setCellValue(parsedSSN);
-        // 다른 컬럼들은 필요시 추가
+        Cell nameCell = row.createCell(COLUMN_NAME, CellType.STRING);
+        nameCell.setCellValue(studentName);
+
+        Cell deptCell = row.createCell(COLUMN_DEPARTMENT, CellType.STRING);
+        deptCell.setCellValue(department);
+
+        Cell ssnCell = row.createCell(COLUMN_SSN, CellType.NUMERIC);
+        ssnCell.setCellValue(ssn);
+        // 필요한 경우 다른 컬럼도 설정
     }
 
-    private Row findRowByStudentNumber(Sheet sheet, String studentNumber) {
+    private long parseLongOrWarn(String valueStr, String fieldName) {
+        try {
+            return Long.parseLong(valueStr);
+        } catch (NumberFormatException e) {
+            logger.warning("경고: " + fieldName + "를 숫자로 변환할 수 없음: " + valueStr + " 기본값 0 사용");
+            return 0;
+        }
+    }
+
+    private Row findRowByStudentNumber(Sheet sheet, String studentNumberStr) {
+        // 주어진 studentNumberStr를 숫자로 변환 후 검색
+        long studentNumber;
+        try {
+            studentNumber = Long.parseLong(studentNumberStr);
+        } catch (NumberFormatException e) {
+            logger.warning("경고: 학생번호를 숫자로 변환할 수 없음: " + studentNumberStr);
+            return null;
+        }
+
         for (Row row : sheet) {
-            String cellValue = getCellValue(row, COLUMN_STUDENT_NUMBER).trim();
-            if (studentNumber.trim().equals(cellValue)) {
-                return row;
+            // 비교 시 셀 타입이 NUMERIC이라고 가정
+            Cell cell = row.getCell(COLUMN_STUDENT_NUMBER, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+            if (cell.getCellType() == CellType.NUMERIC) {
+                long cellValue = (long)cell.getNumericCellValue();
+                if (cellValue == studentNumber) {
+                    return row;
+                }
+            } else {
+                // 만약 이전 데이터가 문자열로 저장되어 있다면 이 부분에서 문자열 변환 시도
+                String cellValStr = getCellValue(cell);
+                try {
+                    long cellValNum = Long.parseLong(cellValStr);
+                    if (cellValNum == studentNumber) {
+                        return row;
+                    }
+                } catch (NumberFormatException ignore) {
+                }
             }
         }
         return null;
@@ -321,8 +351,10 @@ public class StudentExcelHandler {
                     if (DateUtil.isCellDateFormatted(cell)) {
                         return cell.getDateCellValue().toString();
                     } else {
-                        long numericValue = (long) cell.getNumericCellValue();
-                        return String.valueOf(numericValue).trim();
+                        // 숫자 셀의 경우 소수점 없애고 정수형으로 표현
+                        double numericVal = cell.getNumericCellValue();
+                        long longVal = (long) numericVal;
+                        return String.valueOf(longVal).trim();
                     }
                 case BOOLEAN:
                     return String.valueOf(cell.getBooleanCellValue()).trim();
