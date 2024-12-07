@@ -62,8 +62,11 @@ public class ClassLectureReadData {
                     department = dataCell.toString();
                     System.out.println(department);
                     break;
-                }
-            }
+                } 
+            } 
+        }
+        if (department == null) {
+            throw new IllegalArgumentException("강좌를 수정하세요 / " + classSelect);
         }
         CopyOnWriteArrayList<String> professorName = new CopyOnWriteArrayList<>();
         FileInputStream fileProfessor = new FileInputStream(professorFilePath);
@@ -77,24 +80,16 @@ public class ClassLectureReadData {
                 Cell dataCell = row.getCell(targetProfessorColumnIndex);
                 if(dataCell != null) {
                     professorName.add(dataCell.toString());
-                    
                 }
             }
+        }
+        if (professorName == null) {
+            throw new IllegalArgumentException("강좌를 수정하세요 / " + classSelect);
         }
         System.out.println(professorName);
         return professorName;
     }
-    /*
-    public boolean finalConfirm(String minInput, String maxInput, String profeesorSelect) throws IOException {
-        FileInputStream fileLecture = new FileInputStream(lectureFilePath);
-        Workbook workbookLecture = new XSSFWorkbook(fileLecture);
-        Sheet sheetLecture = workbookLecture.getSheetAt(rowIndex);
-        
-        for (Row row : sheetLecture) {
-            Cell cell = row.
-        }
-    }
-*/
+ 
     public static void main(String[] args) throws IOException {
         ClassLectureReadData reader = new ClassLectureReadData();
         CopyOnWriteArrayList<String> columnData = reader.readClassData();

@@ -1,7 +1,7 @@
 package project.ui;
 
-import CourseManagement.AttendanceUi;
-import CourseManagement.StudentListUi;
+import project.courseManagement.AttendanceUi;
+import project.courseManagement.StudentListUi;
 import project.professor.ProfessorServiceUi; // ProfessorServiceUi를 임포트합니다.
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 import java.awt.Insets;
-import Login.ModifyUserUi;
+import project.login.ModifyUserUi;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package Login;
+package project.login;
 
 import project.ui.ProfessorServicesUi;
 import project.ui.StudentServicesUi;

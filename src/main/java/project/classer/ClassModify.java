@@ -127,8 +127,4 @@ public class ClassModify extends JFrame {
         add(modifyButton, detail);
         setVisible(true);
     }
-    
-    public static void main(String[] args) throws IOException {
-        ClassModify a = new ClassModify();
-    }
 }

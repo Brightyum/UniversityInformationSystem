@@ -10,7 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import Login.ModifyUserUi;
+import project.login.ModifyUserUi;
 import project.classer.ClassBilling;
 import project.classer.ClassLecture;
 import project.classer.ClassModify;
@@ -88,7 +88,7 @@ public class ClassesUi extends JFrame {
         modifyUser.addActionListener(new ActionListener() {
             @Override
              public void actionPerformed(ActionEvent e) {
-                 //new ModifyUserUi().setVisible(true);
+                 new ModifyUserUi().setVisible(true);
 
              }
         });

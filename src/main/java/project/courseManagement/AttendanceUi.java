@@ -1,4 +1,4 @@
-package CourseManagement;
+package project.courseManagement;
 
 import java.util.List;
 import java.util.Map;
@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class AttendanceUi extends JFrame {
     public AttendanceUi(Map<String, List<String>> data, String select) {
-        setTitle("출석부 조회");
+        setTitle("강좌별 학생 명단");
         setSize(600, 550);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);

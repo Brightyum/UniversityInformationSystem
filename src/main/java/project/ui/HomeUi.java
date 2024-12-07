@@ -1,7 +1,7 @@
 package project.ui;
 
-import Login.NavigationManager;
-import Login.LoginHandler;
+import project.login.NavigationManager;
+import project.login.LoginHandler;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

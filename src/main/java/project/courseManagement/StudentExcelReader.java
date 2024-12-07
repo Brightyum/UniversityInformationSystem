@@ -1,4 +1,4 @@
-package CourseManagement;
+package project.courseManagement;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;

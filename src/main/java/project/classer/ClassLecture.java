@@ -138,8 +138,4 @@ public class ClassLecture extends JFrame {
         }
         
     }
-    public static void main(String[] args){
-        ClassLecture a = new ClassLecture();
-        
-    }
 }

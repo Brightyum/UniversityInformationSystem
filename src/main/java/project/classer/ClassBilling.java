@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javax.swing.JOptionPane.showMessageDialog;
 /**
  *
  * @author duatm
@@ -109,7 +110,11 @@ public class ClassBilling extends JFrame {
                 try {
                     classSelect = (String) lectureComboBox.getSelectedItem();
                     check = saveObject.billingLecture(classSelect);
-                    System.out.println(check);
+                    if (check) {
+                        showMessageDialog(null, "수강료 청구가 완료되었습니다");
+                    } else {
+                        showMessageDialog(null, "수강료 청구가 실패했습니다. 확인바랍니다.");
+                    }
                 } catch (IOException ex) {
                     Logger.getLogger(ClassBilling.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -119,9 +124,5 @@ public class ClassBilling extends JFrame {
         add(billingButton, detail);
 
         setVisible(true);
-    }
-
-    public static void main(String[] args) throws IOException {
-        new ClassBilling();
     }
 }

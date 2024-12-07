@@ -111,10 +111,4 @@ public class ClassRegister extends JFrame {
         add(loadButton, detail);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ClassRegister frame = new ClassRegister();
-            frame.setVisible(true);
-        });
-    }
 }

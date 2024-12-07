@@ -252,6 +252,9 @@ public class LectureExcelReadData {
                     Cell confirmLectureCell = row.getCell(confirmLectureIndex);
                     String[] currentValue = confirmLectureCell.toString().split(",");
                     for (String i : currentValue) {
+                        if (i.equals("")) {
+                            continue;
+                        }
                         data.add(i);
                     }
                 }

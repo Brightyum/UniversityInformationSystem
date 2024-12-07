@@ -1,8 +1,8 @@
 package project.ui;
 
-import CourseManagement.GradesUi;
-import CourseManagement.StudentBill;
-import Login.ModifyUserUi;
+import project.courseManagement.GradesUi;
+import project.courseManagement.StudentBill;
+import project.login.ModifyUserUi;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -91,8 +91,13 @@ public class StudentServicesUi extends JFrame {
                 try {
                     //String name = "염승욱";  // 로그인 했을때 데이터 받아오기
                     Map<String, String> scoreData = readObject.getScore(name);
-                    GradesUi object = new GradesUi(scoreData); // 성적 확인 창 열기
-                    object.setVisible(true);
+                    if (scoreData != null) {
+                        GradesUi object = new GradesUi(scoreData); // 성적 확인 창 열기
+                        object.setVisible(true);
+                    } else {
+                        showMessageDialog(null, "확인하실 성적이 없습니다.");
+                    }
+                    
                     
                 } catch (IOException ex) {
                     Logger.getLogger(StudentServicesUi.class.getName()).log(Level.SEVERE, null, ex);

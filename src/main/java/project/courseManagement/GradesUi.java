@@ -1,4 +1,4 @@
-package CourseManagement;
+package project.courseManagement;
 
 import java.util.Map;
 import javax.swing.*;
