@@ -15,7 +15,7 @@ public class StudentUi extends JFrame {
         super("학생 정보 관리 창");
         studentExcelHandler = new StudentExcelHandler();
         setSize(400, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 
@@ -104,7 +104,4 @@ public class StudentUi extends JFrame {
         JOptionPane.showMessageDialog(this, success ? successMsg : "해당 학생 정보를 찾을 수 없습니다.");
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(StudentUi::new);
-    }
 }

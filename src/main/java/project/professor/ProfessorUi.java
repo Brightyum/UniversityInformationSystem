@@ -17,7 +17,7 @@ public class ProfessorUi extends JFrame {
         professorExcelHandler = new ProfessorExcelHandler();
 
         setSize(400, 400); // UI 크기 조정
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
 
@@ -103,9 +103,5 @@ public class ProfessorUi extends JFrame {
                 professorNameField.getText()
         );
         JOptionPane.showMessageDialog(this, result != null ? "교수 정보: " + result : "해당 교수 정보를 찾을 수 없습니다.");
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ProfessorUi::new);
     }
 }

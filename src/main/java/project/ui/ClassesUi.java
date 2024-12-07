@@ -100,7 +100,4 @@ public class ClassesUi extends JFrame {
         
         setVisible(true);
     }
-    public static void main(String[] args){
-        ClassesUi frame = new ClassesUi();
-    }
 }

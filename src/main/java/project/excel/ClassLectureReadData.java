@@ -89,12 +89,4 @@ public class ClassLectureReadData {
         System.out.println(professorName);
         return professorName;
     }
- 
-    public static void main(String[] args) throws IOException {
-        ClassLectureReadData reader = new ClassLectureReadData();
-        CopyOnWriteArrayList<String> columnData = reader.readClassData();
-        System.out.println(columnData);
-        String test = "남자";
-        reader.readProfessorData(test);
-    }
 }
